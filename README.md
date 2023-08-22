@@ -132,7 +132,7 @@ The postgres and mariadb subdorectories contain docker-compose files to
 start any of these databases. I have used mariadb in the past but on new
 projects I am mostly using postgres. Please note that for both databases
 you would need to change the IP numer 100.X.X:X to be able to access
-these databases from anywhere inside you tailnet.
+these databases from anywhere inside your tailnet.
 
 ## Backup
 
