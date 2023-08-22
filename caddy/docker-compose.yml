@@ -1,0 +1,27 @@
+version: "3"
+services:
+  caddy:
+    container_name: caddy
+    restart: always
+    image: jumager/caddy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/tailscale/tailscaled.sock:/var/run/tailscale/tailscaled.sock
+      - /run/containers:/run/containers
+      - ./data:/data
+      - ./config:/config
+    ports:
+      - 80:80
+      - 443:443
+      - 443:443/udp
+      - 127.0.0.1:2019:2019
+    environment:
+      - CADDY_INGRESS_NETWORKS=caddy
+      - CADDY_DOCKER_CADDYFILE_PATH=/config/Caddyfile
+      - CADDY_HOST=server.example.org
+      - CADDY_TAILNET_HOST=server.tailXXXXX.ts.net
+      - CADDY_REDIS_HOST=redis-host.tailXXXXX.ts.net
+networks:
+  default:
+    name: caddy
+    external: true

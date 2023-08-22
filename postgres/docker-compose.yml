@@ -1,0 +1,19 @@
+version: "3"
+name: postgres
+services:
+  postgres:
+    container_name: postgres
+    restart: always
+    image: postgres:15-alpine
+    volumes:
+      - /run/postgresql:/run/postgresql
+      - ./data:/var/lib/postgresql/data
+    ports:
+      - 127.0.0.1:5432:5432
+      - 100.X.X.X:6379:5432
+    environment:
+      POSTGRES_PASSWORD: Secret_password
+networks:
+  default:
+    name: caddy
+    external: true

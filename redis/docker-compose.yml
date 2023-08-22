@@ -1,0 +1,21 @@
+version: "3"
+name: redis
+services:
+  redis:
+    container_name: redis
+    restart: always
+    image: redis:latest
+    volumes:
+      - /run/redis:/run/redis
+      - ./data:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - ./docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh
+    ports:
+      - 127.0.0.1:6379:6379
+      - 100.X.X.X:6379:6379
+    sysctls:
+      - net.core.somaxconn=512
+networks:
+  default:
+    name: caddy
+    external: true

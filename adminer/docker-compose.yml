@@ -1,0 +1,16 @@
+name: adminer
+services:
+  adminer:
+    container_name: adminer
+    restart: always
+    image: adminer
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    labels:
+      caddy: "{env.CADDY_TAILNET_HOST}"
+      caddy.handle_path: "/adminer/*"
+      caddy.handle_path.reverse_proxy: "{{upstreams 8080}}"
+networks:
+  default:
+    name: caddy
+    external: true

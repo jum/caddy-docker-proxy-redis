@@ -1,0 +1,19 @@
+version: "3"
+name: mariadb
+services:
+  mariadb:
+    container_name: mariadb
+    restart: always
+    image: mariadb:latest
+    volumes:
+      - /run/mysqld:/run/mysqld
+      - ./data:/var/lib/mysql
+    ports:
+      - 127.0.0.1:3306:3306
+      - 100.X.X.X:3306:3306
+    environment:
+      MARIADB_ROOT_PASSWORD: Secret_password
+networks:
+  default:
+    name: caddy
+    external: true

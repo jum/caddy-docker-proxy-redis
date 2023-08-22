@@ -1,0 +1,59 @@
+{
+        email jens-uwe@mager.org
+        cert_issuer acme
+        default_sni {env.CADDY_HOST}
+        storage redis {
+                host "{env.CADDY_REDIS_HOST}"
+        }
+        log {
+                output file /data/access.log
+        }
+}
+
+(defaulthdr) {
+        header {
+                Strict-Transport-Security "max-age=15552000; includeSubDomains; preload"
+                -Server
+        }
+	encode zstd gzip
+        log
+}
+
+(robots) {
+	import defaulthdr
+	handle_path /robots.txt {
+		file_server * {
+			root /data/web/robots/robots.txt
+		}
+	}
+}
+
+(norobots) {
+        import defaulthdr
+        handle_path /robots.txt {
+                file_server * {
+                        root /data/robots/norobots.txt
+                }
+        }
+}
+
+(naked) {
+        import defaulthdr
+        redir https://www.{host}{uri} 308
+}
+
+http:// {
+        import defaulthdr
+        redir https://{env.CADDY_HOST} 308
+}
+
+{env.CADDY_TAILNET_HOST} {
+        import defaulthdr
+        skip_log /health
+        handle /health {
+                respond "{\"status\":\"up\"}"
+        }
+        handle_errors {
+                respond "{uri}: {http.error.status_code} {http.error.status_text}" {http.error.status_code}
+        }
+}

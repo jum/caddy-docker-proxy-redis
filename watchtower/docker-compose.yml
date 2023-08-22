@@ -1,0 +1,25 @@
+version: "3"
+services:
+  watchtower:
+    container_name: watchtower
+    restart: always
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - $HOME/.docker/config.json:/config.json
+    labels:
+      com.centurylinklabs.watchtower.monitor-only: true
+      caddy: "{env.CADDY_TAILNET_HOST}"
+      caddy.handle_path: "/watchtower/*"
+      caddy.handle_path.reverse_proxy: "{{upstreams 8080}}"
+    environment:
+      WATCHTOWER_INCLUDE_RESTARTING: "true"
+      WATCHTOWER_POLL_INTERVAL: 3600
+      WATCHTOWER_CLEANUP: "true"
+      WATCHTOWER_HTTP_API_UPDATE: "true"
+      WATCHTOWER_HTTP_API_TOKEN: "Random_password"
+      WATCHTOWER_HTTP_API_PERIODIC_POLLS: "true"
+networks:
+  default:
+    name: caddy
+    external: true

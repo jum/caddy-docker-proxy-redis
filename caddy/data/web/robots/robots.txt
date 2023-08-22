@@ -1,0 +1,14 @@
+User-agent: InfoTigerBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: Zoominfobot
+Disallow: /
+
+User-agent: dotbot
+Disallow: /

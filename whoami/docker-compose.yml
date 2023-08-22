@@ -1,0 +1,14 @@
+version: "3"
+services:
+  whoami:
+    container_name: whoami
+    restart: always
+    image: traefik/whoami
+    labels:
+      caddy: "{env.CADDY_HOST}"
+      caddy.import: defaulthdr
+      caddy.reverse_proxy: "{{upstreams}}"
+networks:
+  default:
+    name: caddy
+    external: true
