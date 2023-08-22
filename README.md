@@ -80,7 +80,11 @@ port 80 and 443 TCP and 443 UDP for QUIC aka HTTP/3. For easier
 configuration of the individual services I do include Caddyfile snippets
 in the config/Caddfile subdirectory. The caddy docker-proxy
 configuration to build a final Caddyfile can get a bit obscure for more
-complicated containers like nextcloud.
+complicated containers like nextcloud. I use a defaulthdr snippet (for
+an example see the whoami section later) to set HSTS headers, set the
+log file and enable compression. This snipped might be replaced by the
+norobots snippet that whould inhibit crawling for API style sites or the
+robots snippet for normal content with some obnoxius robots excluded.
 
 This Caddyfile also defines a https site on the tailscale side for the
 host, this has by default just a /health endpoint for health checking.
