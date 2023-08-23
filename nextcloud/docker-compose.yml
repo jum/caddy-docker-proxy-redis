@@ -1,0 +1,16 @@
+version: "3"
+name: nextcloud
+services:
+  nextcloud:
+    container_name: nextcloud
+    restart: always
+    image: nextcloud:fpm-alpine
+    volumes:
+      - /data/nextcloud:/var/www/html
+    labels:
+      caddy: nextcloud.example.org
+      caddy.import: nextcloud
+networks:
+  default:
+    name: caddy
+    external: true

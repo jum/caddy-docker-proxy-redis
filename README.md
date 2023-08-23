@@ -96,6 +96,9 @@ this to expose my own services via unix domain sockets. If you do not
 expect to proxy to upstream servers via unix domain sockets you might
 omit that volume.
 
+The volume /var/www/html is for interoperability with php fastcgi in the
+nextcloud example, if you do not need nextcloud drop thus.
+
 ## Watchtower
 
 The container defined in the watchtower subdirectory is responsible for
@@ -153,6 +156,15 @@ PROTOCOL = http+unix
 HTTP_PORT = 3000
 HTTP_ADDR = /run/containers/gitea.sock
 ```
+
+## Nextcloud
+
+The Nextcloud configuration in the Caddfile is rather lengthy, so I
+decided to put that as a snippet in the base Caddyfile and just put the
+import in the nextcloud/docker-compose.yml. The php fastcgi
+configuration relies on the .php files to be present under the same path
+in both the caddy and the nextcloud containers, note the according volume
+mounts of /var/www/html in both containers.
 
 ## Backup
 

@@ -42,6 +42,47 @@
         redir https://www.{host}{uri} 308
 }
 
+(nextcloud) {
+	import defaulthdr
+	root * /var/www/html
+	file_server
+	redir /.well-known/carddav /remote.php/dav 301
+	redir /.well-known/caldav /remote.php/dav 301
+	redir /.well-known/webfinger /index.php{uri} 301
+	redir /.well-known/nodeinfo /index.php{uri} 301
+	header {
+		Referrer-Policy "no-referrer" defer
+		X-Content-Type-Options "nosniff" defer
+		X-Download-Options "noopen" defer
+		X-Frame-Options "SAMEORIGIN" defer
+		X-Permitted-Cross-Domain-Policies "none" defer
+		X-Robots-Tag "none" defer
+		X-XSS-Protection "1; mode=block" defer
+	}
+	php_fastcgi nextcloud:9000 {
+		try_files {path} {path}/index.php /index.php index.php
+		env front_controller_active true
+		header_down -x-powered-by
+	}
+	@forbidden {
+		path /.htaccess
+		path /data/*
+		path /config/*
+		path /db_*
+		path /.xml
+		path /README
+		path /AUTHORS
+		path /COPYING
+		path /3rdparty/*
+		path /lib/*
+		path /templates/*
+		path /occ
+		path /console.php
+		path /cron.php
+	}
+	respond @forbidden 404
+}
+
 http:// {
         import defaulthdr
         redir https://{env.CADDY_HOST} 308
