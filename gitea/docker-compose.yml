@@ -1,0 +1,30 @@
+version: "3"
+name: gitea
+services:
+  gitea:
+    container_name: gitea
+    restart: always
+    image: gitea/gitea:latest
+    volumes:
+      - /run/containers:/run/containers
+      - /data/gitea:/data
+    ports:
+      - 127.0.0.1:3000:3000
+      - 127.0.0.1:222:22
+    environment:
+      USER_UID: 1000
+      USER_GID: 1000
+      GITEA__database__DB_TYPE: postgres
+      GITEA__database__HOST: postgres:5432
+      GITEA__database__NAME: gitea
+      GITEA__database__USER: gitea
+      GITEA__database__PASSWD: Geheim
+    labels:
+      caddy: gitea.example.org
+      caddy.import: defaulthdr
+      caddy.skip_log: /healthcheck
+      caddy.reverse_proxy: "unix//run/containers/gitea.sock"
+networks:
+  default:
+    name: caddy
+    external: true

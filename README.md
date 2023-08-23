@@ -138,6 +138,22 @@ projects I am mostly using postgres. Please note that for both databases
 you would need to change the IP numer 100.X.X:X to be able to access
 these databases from anywhere inside your tailnet.
 
+## Gitea
+
+I do host my own private git repositories and the assorted CI/CD
+pipelines using gitea. The subdirectiory gitea shows an example
+docker-compose.yml file. Please note that I use something like this in
+my app.ini for gitea to reverse proxy via a unix socket:
+
+```
+[server]
+SSH_DOMAIN = gitea.example.org
+DOMAIN = gitea.example.org
+PROTOCOL = http+unix
+HTTP_PORT = 3000
+HTTP_ADDR = /run/containers/gitea.sock
+```
+
 ## Backup
 
 I do run nightly backups via restic to a Hetzner storage box via SFTP.
