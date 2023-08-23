@@ -99,6 +99,50 @@ omit that volume.
 The volume /var/www/html is for interoperability with php fastcgi in the
 nextcloud example, if you do not need nextcloud drop this.
 
+To support naked domains (e.g. redirecting from example.com to
+www.example.com) I use the naked snippet. You need to define an A (and
+AAAA, if you use IPv6) record pointing to your host instance besides the
+normal CNAME record pointing to the canonical name for your host for the
+www subdomain. This would normally look like this:
+
+```
+; SOA Record
+@	3600	 IN 	SOA	ns.example.com.	jum.example.com. (
+					2023081200
+					28800
+					7200
+					604800
+					3600
+					) 
+
+; A Record
+@	3600	 IN 	A	X.X.X.X
+
+; AAAA Record
+@	600	 IN 	AAAA	XXXX:XXX:XXXX:XXX::1
+
+; CNAME Record
+www	3600	 IN 	CNAME	www.example.org.
+
+```
+
+A container serving the www.example.com domain would have this in its
+label section in the docker-compose.yml:
+
+```
+    labels:
+      caddy_0: example.com
+      caddy_0.import: naked
+      caddy_1: www.example.com
+      caddy_1.import: robots
+      caddy_1.skip_log: /health
+      caddy_1.reverse_proxy: "unix//run/containers/example-www.sock"
+```
+
+This assumes that container serving the example.com domain is listening
+under a UNIX domain socket and also exposes a /health endpoint that
+should not be recorded in the logs.
+
 ## Watchtower
 
 The container defined in the watchtower subdirectory is responsible for
@@ -148,7 +192,7 @@ note that this also has to expose the tailnet side of the hosts IP (the
 The postgres and mariadb subdorectories contain docker-compose files to
 start any of these databases. I have used mariadb in the past but on new
 projects I am mostly using postgres. Please note that for both databases
-you would need to change the IP numer 100.X.X:X to be able to access
+you would need to change the IP number 100.X.X:X to be able to access
 these databases from anywhere inside your tailnet.
 
 ## Gitea
