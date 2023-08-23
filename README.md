@@ -162,7 +162,7 @@ curl -s -H "Authorization: Bearer Secret_Token" \
 ```
 
 I do use this in my CI/CD pipelines to trigger container reloads
-affected hosts after building a container.
+on affected hosts after building a container.
 
 ## Whoami
 
