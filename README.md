@@ -108,7 +108,17 @@ to be working, but fortunately this is mature software and changes seldomly.
 Please note that you should set a random password for the watchtower API
 in this docker-compose.yml. This container also needs to access your
 docker credentials in your home directory for accessing your docker
-repositories.
+repositories. A script like this can be used to trigger a scan for
+updated containers for an individual host:
+
+```
+#!/bin/sh
+curl -s -H "Authorization: Bearer Secret_Token" \
+	https://host.tailXXXXX.ts.net/watchtower/v1/update
+```
+
+I do use this in my CI/CD pipelines to trigger container reloads
+affected hosts after building a container.
 
 ## Whoami
 
