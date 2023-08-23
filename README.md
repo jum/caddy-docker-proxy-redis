@@ -103,8 +103,8 @@ nextcloud example, if you do not need nextcloud drop this.
 
 The container defined in the watchtower subdirectory is responsible for
 updating the containers actually running on the host, with the exception
-of watchtower itself. Lettings watchtower update itself does not appear
-to be working, but fortunately this is mature and changes seldomly.
+of watchtower itself. Letting watchtower update itself does not appear
+to be working, but fortunately this is mature software and changes seldomly.
 Please note that you should set a random password for the watchtower API
 in this docker-compose.yml. This container also needs to access your
 docker credentials in your home directory for accessing your docker
