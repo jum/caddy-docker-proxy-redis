@@ -50,7 +50,7 @@ Environment="GOOGLE_APPLICATION_CREDENTIALS=/home/amdinuser/.serviceaccts/hostin
 ```
 
 The After= section makes sure that docker starts after tailscale is
-innitialized. GOOGLE_APPLICATION_CREDENTIALS injects the credentials of
+initialized. GOOGLE_APPLICATION_CREDENTIALS injects the credentials of
 a service account that has log and error reporting permissions on a
 Google Cloud project. I modify the docker daemon config in
 /etc/docker/dameon.json like this:
