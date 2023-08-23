@@ -97,7 +97,7 @@ expect to proxy to upstream servers via unix domain sockets you might
 omit that volume.
 
 The volume /var/www/html is for interoperability with php fastcgi in the
-nextcloud example, if you do not need nextcloud drop thus.
+nextcloud example, if you do not need nextcloud drop this.
 
 ## Watchtower
 
