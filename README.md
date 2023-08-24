@@ -5,7 +5,7 @@
 I do have a few linux virtual servers spread around in various data
 centers. Originally that was mostly nginx front ends to various locally
 installed applications, all supervised by systemd. Changing to caddy
-as the proxy server was a fresh breaze as the configuration got much
+as the proxy server was a fresh breeze as the configuration got much
 simpler and there where no shell scripts needed any longer to update
 certificates with letsencrypt. Still a lot installed on each server, but
 simpler.
@@ -75,7 +75,7 @@ build-docker.sh script to build the container that runs caddy with the
 docker proxy and tls-redis plugins. I do build both AMD64 and ARM64
 versions of each of my containers as my linux systems use both of these
 architectures. The caddy subdirectory showcases a typical caddy
-configuration. I do run caddy in its container with ports forwared for
+configuration. I do run caddy in its container with ports forwarded for
 port 80 and 443 TCP and 443 UDP for QUIC aka HTTP/3. For easier
 configuration of the individual services I do include Caddyfile snippets
 in the config/Caddfile subdirectory. The caddy docker-proxy
