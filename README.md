@@ -44,8 +44,10 @@ directory /etc/systemd/system/docker.service.d and creating a file
 override.conf like this:
 
 ```
-[Service]
+[Unit]
 After=tailscaled.service
+
+[Service]
 Environment="GOOGLE_APPLICATION_CREDENTIALS=/home/amdinuser/.serviceaccts/hosting-XXXXXX-XXXXXXXXXXXX.json"
 ```
 
