@@ -145,6 +145,35 @@ This assumes that container serving the example.com domain is listening
 under a UNIX domain socket and also exposes a /health endpoint that
 should not be recorded in the logs.
 
+### Surving a tailscaled restart
+
+The docker container mounts the runtime directory of tailscale and not
+the socket file itself (how it is done for the docker socket). This is
+due to the fact that docker virtual mounts will not notice if the
+underlying file is recreated upon restarting the listening daemon. For
+the docker socket this does not matter, as if docker is restart all
+containers will restart as well. As a further complication, the
+tailscaled.service files not specify the option to preserve the
+directory /var/run/tailscale at daemon restart, making a mount of
+/var/run/tailscale instead of the socket not work. But there is an
+option in systemd to make that work, create a directory named
+/etc/systemd/system/tailscaled.service.d and create a file named
+runtimedir.conf with the following contents:
+
+```
+[Service]
+RuntimeDirectoryPreserve=yes
+```
+
+This will prevent systemd from removing the /var/run/tailscale directory
+and the caddy container will pick the changed tailscaled socket on the
+next access.
+
+I have submitted a feature request to tailscale to make that the
+default. You might want to chime in here to make it happen:
+
+https://github.com/tailscale/tailscale/issues/9362
+
 ## Watchtower
 
 The container defined in the watchtower subdirectory is responsible for
