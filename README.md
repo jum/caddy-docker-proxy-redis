@@ -52,7 +52,40 @@ Environment="GOOGLE_APPLICATION_CREDENTIALS=/home/amdinuser/.serviceaccts/hostin
 ```
 
 The After= section makes sure that docker starts after tailscale is
-initialized. GOOGLE_APPLICATION_CREDENTIALS injects the credentials of
+initialized. This is necessary to achieve name resolution via the
+tailscale magic DNS feature from within the docker caddy container. If
+you cannot resolve your services in your tailnet (this example uses a
+redis server reachable from all nodes over the private tailnet), you can
+check the resolv.conf file in the caddy container:
+
+```
+docker exec -it caddy cat /etc/resolv.conf
+```
+
+On some Linux distributions the /etc/resolv.conf is overwritten multiple
+times, in these cases the caddy docker container picked up an
+intermidiate version of resolv.conf and not the final one. So the caddy
+resolv.conf should match the hosts /etc/resolv.conf exactly.
+
+From my experience the use of NetworkManager together with cloud-init is
+prone to produce these situation. In these cases it might be advised to
+change the above dependency to After=tailscale-up.service and use the
+following tailscale-up.service file:
+
+```
+[Unit]
+Description=Wait for tailscale up
+After=tailscaled.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/sh -c "/usr/bin/tailscale up; echo tailscale-up"
+```
+
+Experimenting with systemd-resolved might also reduce the number of
+overwrites to the resolv.conf file.
+
+GOOGLE_APPLICATION_CREDENTIALS injects the credentials of
 a service account that has log and error reporting permissions on a
 Google Cloud project. I modify the docker daemon config in
 /etc/docker/dameon.json like this:
