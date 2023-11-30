@@ -178,7 +178,7 @@ This assumes that container serving the example.com domain is listening
 under a UNIX domain socket and also exposes a /health endpoint that
 should not be recorded in the logs.
 
-### Surving a tailscaled restart
+### Surviving a tailscaled restart
 
 The docker container mounts the runtime directory of tailscale and not
 the socket file itself (how it is done for the docker socket). This is
