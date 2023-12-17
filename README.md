@@ -304,9 +304,14 @@ fi
 export RESTIC_REPOSITORY=sftp:storage:backup-hostXXX/restic
 export RESTIC_PASSWORD_FILE=$HOME/.restic-backup-hostXXX
 
-sudo -u adminuser sh -c "cd ~/web/redis; ./dumpdb.sh"
-sudo -u adminuser sh -c "cd ~/web/mariadb; ./dumpdb.sh"
-sudo -u adminuser sh -c "cd ~/web/postgres; ./dumpdb.sh"
+docker compose ls --format json|jq -r '.[]|.ConfigFiles' | while read yaml
+do
+	dir=`dirname "$yaml"`
+	if test -x "$dir/dumpdb.sh"
+	then
+		sudo -u adminuser sh -c "cd $dir; ./dumpdb.sh"
+	fi
+done
 
 restic $VERBOSE backup --exclude-caches=true \
 	/etc/docker /var/lib/docker \
@@ -322,3 +327,9 @@ chown -R adminuser:adminuser /home/adminuser/.cache/restic
 This scripts assumes that the subdirectories for the docker containers
 are kept under ~adminuser/web and that the adminuser is a member of the
 docker group.
+
+If the directory with the docker-compose.yaml file has a dumpdb.sh
+script, it is called to dump any databases before backing up. The script
+for redis will dump the memory to a file, the mariadb and postgres
+containers will dump the complete database. I also use this with some
+sqlite projects to perform a textual dump of the database.
