@@ -22,6 +22,7 @@ services:
       - CADDY_HOST=server.example.org
       - CADDY_TAILNET_HOST=server.tailXXXXX.ts.net
       - CADDY_REDIS_HOST=redis-host.tailXXXXX.ts.net
+      - GODADDY_KEY=YOUR_GODADDY_API_KEY
 networks:
   default:
     name: caddy

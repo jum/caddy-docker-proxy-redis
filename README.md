@@ -48,7 +48,7 @@ override.conf like this:
 After=tailscaled.service
 
 [Service]
-Environment="GOOGLE_APPLICATION_CREDENTIALS=/home/amdinuser/.serviceaccts/hosting-XXXXXX-XXXXXXXXXXXX.json"
+Environment="GOOGLE_APPLICATION_CREDENTIALS=/home/adminuser/.serviceaccts/hosting-XXXXXX-XXXXXXXXXXXX.json"
 ```
 
 The After= section makes sure that docker starts after tailscale is
@@ -107,19 +107,21 @@ on the individual hosts.
 
 The root directory of this repo contains the Dockerfile and a
 build-docker.sh script to build the container that runs caddy with the
-docker proxy and tls-redis plugins. I do build both AMD64 and ARM64
-versions of each of my containers as my linux systems use both of these
-architectures. The caddy subdirectory showcases a typical caddy
-configuration. I do run caddy in its container with ports forwarded for
-port 80 and 443 TCP and 443 UDP for QUIC aka HTTP/3. For easier
-configuration of the individual services I do include Caddyfile snippets
-in the config/Caddfile subdirectory. The caddy docker-proxy
-configuration to build a final Caddyfile can get a bit obscure for more
-complicated containers like nextcloud. I use a defaulthdr snippet (for
-an example see the whoami section later) to set HSTS headers, set the
-log file and enable compression. This snipped might be replaced by the
-norobots snippet that whould inhibit crawling for API style sites or the
-robots snippet for normal content with some obnoxius robots excluded.
+docker-proxy, tls-redis and caddy-dns/godaddy plugins. I do build both
+AMD64 and ARM64 versions of each of my containers as my linux systems
+use both of these architectures.
+
+The caddy subdirectory showcases a typical caddy configuration. I do run
+caddy in its container with ports forwarded for port 80 and 443 TCP and
+443 UDP for QUIC aka HTTP/3. For easier configuration of the individual
+services I do include Caddyfile snippets in the config/Caddfile
+subdirectory. The caddy docker-proxy configuration to build a final
+Caddyfile can get a bit obscure for more complicated containers like
+nextcloud. I use a defaulthdr snippet (for an example see the whoami
+section later) to set HSTS headers, set the log file and enable
+compression. This snipped might be replaced by the norobots snippet that
+whould inhibit crawling for API style sites or the robots snippet for
+normal content with some obnoxius robots excluded.
 
 This Caddyfile also defines a https site on the tailscale side for the
 host, this has by default just a /health endpoint for health checking.
@@ -168,7 +170,9 @@ label section in the docker-compose.yml:
     labels:
       caddy_0: example.com
       caddy_0.import: naked
+	  caddy_0.tls.dns: godaddy {env.GODADDY_KEY}
       caddy_1: www.example.com
+	  caddy_1.tls.dns: godaddy {env.GODADDY_KEY}
       caddy_1.import: robots
       caddy_1.skip_log: /health
       caddy_1.reverse_proxy: "unix//run/containers/example-www.sock"
@@ -177,6 +181,15 @@ label section in the docker-compose.yml:
 This assumes that container serving the example.com domain is listening
 under a UNIX domain socket and also exposes a /health endpoint that
 should not be recorded in the logs.
+
+Recently I started to use ACME DNS verification for some domains, for
+this reason I add the godaddy caddy DNS module for my DNS provider. The
+above configuration with caddy_X.tls.dns tell caddy to use ACME DNS
+instead of HTTP based verification for generating TLS certificates. You
+could also add this to the base Caddyfile snippet, but only if you use
+only one DNS provider account. I use multiple, so I have to add this to
+each site with different GODADDY_KEY variables. If you do not use this,
+leave that lines out.
 
 ### Surviving a tailscaled restart
 
