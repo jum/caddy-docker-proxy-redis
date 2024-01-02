@@ -15,6 +15,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 	xcaddy build \
 		--with github.com/gamalan/caddy-tlsredis \
 		--with github.com/caddy-dns/godaddy \
+		--with github.com/caddy-dns/cloudflare \
 		--with github.com/lucaslorentz/caddy-docker-proxy/v2
 
 # Now copy it into our base image.
