@@ -1,6 +1,7 @@
 {
         email jens-uwe@mager.org
         cert_issuer acme
+	acme_dns cloudflare {env.CF_API_KEY}
         default_sni {env.CADDY_HOST}
         storage redis {
                 host "{env.CADDY_REDIS_HOST}"

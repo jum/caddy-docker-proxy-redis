@@ -107,7 +107,7 @@ on the individual hosts.
 
 The root directory of this repo contains the Dockerfile and a
 build-docker.sh script to build the container that runs caddy with the
-docker-proxy, tls-redis and caddy-dns/godaddy plugins. I do build both
+docker-proxy, tls-redis and caddy-dns/cloudflare plugins. I do build both
 AMD64 and ARM64 versions of each of my containers as my linux systems
 use both of these architectures.
 
@@ -170,9 +170,9 @@ label section in the docker-compose.yml:
     labels:
       caddy_0: example.com
       caddy_0.import: naked
-	  caddy_0.tls.dns: godaddy {env.GODADDY_KEY}
+	  caddy_0.tls.dns: cloudflare {env.CF_API_KEY}
       caddy_1: www.example.com
-	  caddy_1.tls.dns: godaddy {env.GODADDY_KEY}
+	  caddy_1.tls.dns: cloudflare {env.CF_API_KEY}
       caddy_1.import: robots
       caddy_1.skip_log: /health
       caddy_1.reverse_proxy: "unix//run/containers/example-www.sock"
@@ -183,13 +183,15 @@ under a UNIX domain socket and also exposes a /health endpoint that
 should not be recorded in the logs.
 
 Recently I started to use ACME DNS verification for some domains, for
-this reason I add the godaddy caddy DNS module for my DNS provider. The
+this reason I add the cloudflare caddy DNS module for my DNS provider. The
 above configuration with caddy_X.tls.dns tell caddy to use ACME DNS
 instead of HTTP based verification for generating TLS certificates. You
 could also add this to the base Caddyfile snippet, but only if you use
-only one DNS provider account. I use multiple, so I have to add this to
-each site with different GODADDY_KEY variables. If you do not use this,
-leave that lines out.
+only one DNS provider account. I recently moved from godaddy to
+cloudflare for hosting my DNS, and although I initially purchased my
+domains using multiple godaddy accounts I can now update all my domains
+using a single CF_API_KEY for cloudflare. I have thus moved this into
+the main Caddyfile under the acme_dns global configuration.
 
 ### Surviving a tailscaled restart
 
