@@ -249,9 +249,9 @@ For debugging (and as a placeholder to aquire certificates) I tend to
 start an instance of whoami on the canonical host name of the linux box.
 For hosts that may be running postfix and dovecot or other services
 outside the caddy/docker universe a seperate project in
-github.com/jum/certwatch can be used to monitor a set of certificates in
-the caddy redis storage and write the certificates to /var/lib/certwatch
-and restart systemd services.
+[certwatch](https://github.com/jum/certwatch) can be used to monitor a
+set of certificates in the caddy redis storage and write the
+certificates to /var/lib/certwatch and restart systemd services.
 
 ## Adminer
 
