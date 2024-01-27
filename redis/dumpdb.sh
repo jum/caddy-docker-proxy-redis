@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function redis-cli {
-	docker exec -i redis /usr/local/bin/redis-cli "$@"
+	docker exec redis /usr/local/bin/redis-cli "$@"
 }
 
 redis-cli BGSAVE >/dev/null
