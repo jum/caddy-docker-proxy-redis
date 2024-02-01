@@ -7,6 +7,7 @@ services:
     image: nextcloud:fpm-alpine
     volumes:
       - /data/nextcloud:/var/www/html
+      - ./docker.conf:/usr/local/etc/php-fpm.d/docker.conf
     labels:
       caddy: nextcloud.example.org
       caddy.import: nextcloud
