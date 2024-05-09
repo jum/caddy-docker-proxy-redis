@@ -2,6 +2,7 @@
         email jens-uwe@mager.org
         cert_issuer acme
 	acme_dns cloudflare {env.CF_API_KEY}
+	auto_https disable_redirects
         default_sni {env.CADDY_HOST}
         storage redis {
                 host "{env.CADDY_REDIS_HOST}"
@@ -84,11 +85,6 @@
         header @static Cache-Control "max-age=15778463"
         @woff2 path *.woff2
         header @woff2 Cache-Control "max-age=604800"
-}
-
-http:// {
-        import defaulthdr
-        redir https://{env.CADDY_HOST} 308
 }
 
 {env.CADDY_TAILNET_HOST} {

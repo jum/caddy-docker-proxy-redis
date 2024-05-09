@@ -193,6 +193,13 @@ domains using multiple godaddy accounts I can now update all my domains
 using a single CF_API_KEY for cloudflare. I have thus moved this into
 the main Caddyfile under the acme_dns global configuration.
 
+For all of my domains (except one, for backward compatibility) I also do
+not expect any unencrypted traffic on port 80, I have thus added
+"auto_https disable_redirects" to the base Caddfile to let caddy not
+listen on port 80 by default. As I only use the ACME DNS challenge, I do
+not need to open that port und thus save myself the headache of the many
+probes for security problems, which conveniently only happen on port 80.
+
 ### Surviving a tailscaled restart
 
 The docker container mounts the runtime directory of tailscale and not
