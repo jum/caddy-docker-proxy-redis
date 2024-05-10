@@ -21,3 +21,6 @@ Disallow: /
 
 User-agent: AwarioSmartBot
 Disallow: /
+
+User-Agent: WellKnownBot
+Disallow: /
