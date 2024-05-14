@@ -1,5 +1,5 @@
 # Dockerfile for building the project with static assets
-FROM --platform=$BUILDPLATFORM golang:1.21-bullseye as build
+FROM --platform=$BUILDPLATFORM golang:1.22-bullseye as build
 
 WORKDIR /goapp
 ARG TARGETOS TARGETARCH
