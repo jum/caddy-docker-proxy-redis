@@ -68,7 +68,7 @@
 	}
 	@forbidden {
                 path /build/* /tests/* /config/* /lib/* /3rdparty/* /templates/* /data/*
-                path /.* /autotest* /occ* /issue* /indie* /db_* /console*
+                path /autotest* /occ* /issue* /indie* /db_* /console*
                 not path /.well-known/*
         }
         error @forbidden 404
