@@ -1,8 +1,9 @@
 # Dockerfile for building the project with static assets
-FROM --platform=$BUILDPLATFORM golang:1.21-bullseye as build
+FROM --platform=$BUILDPLATFORM golang:1.22-bullseye as build
 
 WORKDIR /goapp
 ARG TARGETOS TARGETARCH
+ARG CADDY_VERSION=latest
 ENV CGO_ENABLED=0
 
 RUN --mount=type=cache,target=/root/.cache/go-build \
@@ -12,7 +13,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 RUN --mount=type=cache,target=/root/.cache/go-build \
 	--mount=type=cache,target=/go/pkg \
 	GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
-	xcaddy build \
+	xcaddy build ${CADDY_VERSION} \
 		--with github.com/pberkel/caddy-storage-redis \
 		--with github.com/caddy-dns/cloudflare \
 		--with github.com/lucaslorentz/caddy-docker-proxy/v2
