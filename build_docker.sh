@@ -6,4 +6,4 @@ if test X$branch = Xdevelop
 then
     CADDY_VERSION=master
 fi
-docker buildx build --platform linux/arm64,linux/amd64 --build-arg CADDY_VERSION=master -t ${DOCKER_PREFIX}:${branch} -f Dockerfile --push .
+docker buildx build --platform linux/arm64,linux/amd64 --build-arg CADDY_VERSION=${CADDY_VERSION} -t ${DOCKER_PREFIX}:${branch} -f Dockerfile --push .
