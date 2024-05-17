@@ -24,6 +24,10 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: jumager/caddy
+      - name: Set caddy version
+        id: caddy_version
+        run: |
+          if test ${{ github.ref_name }} == develop; then echo "::set-output name=version::master"; else echo "::set-output name=version::latest"; fi
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
@@ -31,6 +35,8 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            CADDY_VERSION=${{ steps.caddy_version.outputs.version }}
       - name: Send Webhook Notification
         if: always()
         env:
