@@ -19,6 +19,7 @@ services:
       WATCHTOWER_HTTP_API_UPDATE: "true"
       WATCHTOWER_HTTP_API_TOKEN: "Random_password"
       WATCHTOWER_HTTP_API_PERIODIC_POLLS: "true"
+      WATCHTOWER_LOG_FORMAT: json
 networks:
   default:
     name: caddy
