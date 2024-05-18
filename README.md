@@ -89,9 +89,10 @@ on the individual hosts.
 
 I used to use the gcplogs log driver built into docker, but I am really
 switching all my projects to structured json based logging and was looking
-for ways to directly feed that into google cloud logging. The docker gpclogs driver does not do this, but I found the project
+for ways to directly feed that into google cloud logging. The docker
+gpclogs driver does not do this, but I found the project
 [ngcplogs](https://github.com/nanoandrew4/ngcplogs)
-that modified the gcplogs driver driver to extract the structured log info.
+that modified the gcplogs driver to extract the structured log info.
 
 This driver is a docker plgin and is installed like this:
 
@@ -264,8 +265,10 @@ curl -s -H "Authorization: Bearer Secret_Token" \
 	https://host.tailXXXXX.ts.net/watchtower/v1/update
 ```
 
-I do use this in my CI/CD pipelines to trigger container reloads
-on affected hosts after building a container.
+I do use this in my gitea CI/CD pipelines to trigger container reloads
+on affected hosts after building a container. As this accesses the
+watchtower container via the tailnet, that only works for private
+action runners that are part of your tailnet. 
 
 ## Whoami
 
