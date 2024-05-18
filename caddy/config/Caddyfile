@@ -89,7 +89,7 @@
 
 {env.CADDY_TAILNET_HOST} {
         import defaulthdr
-        skip_log /health
+        log_skip /health
         handle /health {
                 respond "{\"status\":\"up\"}"
         }

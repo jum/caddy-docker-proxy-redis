@@ -21,7 +21,7 @@ services:
     labels:
       caddy: gitea.example.org
       caddy.import: defaulthdr
-      caddy.skip_log: /healthcheck
+      caddy.log_skip: /healthcheck
       caddy.reverse_proxy: "unix//run/containers/gitea.sock"
 networks:
   default:

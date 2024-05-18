@@ -174,7 +174,7 @@ label section in the docker-compose.yml:
       caddy_1: www.example.com
 	  caddy_1.tls.dns: cloudflare {env.CF_API_KEY}
       caddy_1.import: robots
-      caddy_1.skip_log: /health
+      caddy_1.log_skip: /health
       caddy_1.reverse_proxy: "unix//run/containers/example-www.sock"
 ```
 
