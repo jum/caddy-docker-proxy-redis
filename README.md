@@ -317,6 +317,17 @@ HTTP_PORT = 3000
 HTTP_ADDR = /run/containers/gitea.sock
 ```
 
+The act_runner directory contains the docker compose setup for a gitea
+runner. I do run that on a few nodes, but not on the node that runs gitea
+itself. If the runner nodes need to update via watchtower, make sure they
+are running in your tailnet. Before you start, run the register.sh script
+to register the runner node. I think the standard runner images of gitea
+do not contain what I need on a runner, I am thus changing my workflows
+to run on node-20 instead of ubuntu, and my config.yml point to my prepared
+image. See
+[act_runner_image](https://gitea.mager.org/jum/act_runner_image.git)
+for what I use.
+
 ## Nextcloud
 
 The Nextcloud configuration in the Caddfile is rather lengthy, so I
