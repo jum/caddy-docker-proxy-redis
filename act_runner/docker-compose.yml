@@ -1,0 +1,11 @@
+name: act_runner
+services:
+  act_runner:
+    container_name: act_runner
+    restart: always
+    network_mode: host
+    image: gitea/act_runner:nightly
+    volumes:
+      - ./data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+      - $HOME/.docker/config.json:/config.json
