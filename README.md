@@ -22,7 +22,7 @@ following setup:
 * All docker containers are started via a docker-compose.yml file. Each
     of those gets their own subdirectory with the docker-compose.yml
     file alongside any additional configuration and data volumes needed.
-* I run caddy with the docker-proxy and caddy-tls-redis plugins in a
+* I run caddy with the docker-proxy and caddy-storage-redis plugins in a
     container as front end proxy.
 * Individual containers for the services use caddy docker proxy label
     fragments for configuration in the individual docker-compose.yml
@@ -46,9 +46,6 @@ override.conf like this:
 ```
 [Unit]
 After=tailscaled.service
-
-[Service]
-Environment="GOOGLE_APPLICATION_CREDENTIALS=/home/adminuser/.serviceaccts/hosting-XXXXXX-XXXXXXXXXXXX.json"
 ```
 
 The After= section makes sure that docker starts after tailscale is
@@ -85,31 +82,51 @@ ExecStart=/usr/bin/sh -c "/usr/bin/tailscale up; echo tailscale-up"
 Experimenting with systemd-resolved might also reduce the number of
 overwrites to the resolv.conf file.
 
-GOOGLE_APPLICATION_CREDENTIALS injects the credentials of
-a service account that has log and error reporting permissions on a
-Google Cloud project. I modify the docker daemon config in
-/etc/docker/dameon.json like this:
+## Logging to Google Cloud Logging (Stackdriver)
+
+The Google Cloud configuration is optional if you like to use journalctl
+on the individual hosts.
+
+I used to use the gcplogs log driver built into docker, but I am really
+switching all my projects to structured json based logging and was looking
+for ways to directly feed that into google cloud logging. The docker gpclogs driver does not do this, but I found the project
+[ngcplogs](https://github.com/nanoandrew4/ngcplogs)
+that modified the gcplogs driver driver to extract the structured log info.
+
+This driver is a docker plgin and is installed like this:
+
+````
+docker plugin install nanoandrew4/ngcplogs:linux-arm64-v1.3.0
+````
+
+The driver is configured as usual in /etc/docker/dameon.json
+like this:
 
 ```
 {
-	"log-driver": "gcplogs",
+	"log-driver": "nanoandrew4/ngcplogs:linux-arm64-v1.3.0",
 	"log-opts": {
+		"exclude-timestamp" : "true",
 		"gcp-project": "hosting-XXXXXX",
 		"gcp-meta-name": "myservername"
+		"credentials-json" : "your_json_escaped_credentials.json_file_content"
 	}
 }
 ```
 
-The Google Cloud configuration is optional if you like to use journalctl
-on the individual hosts.
+The escaped json string for the Google service account with log writing permissions can be gnerated with the json-escape.go program like this:
+
+```
+go run json-escape.go </path/to/my-service-acct.json
+```
 
 ## Caddy
 
 The root directory of this repo contains the Dockerfile and a
 build-docker.sh script to build the container that runs caddy with the
-docker-proxy, tls-redis and caddy-dns/cloudflare plugins. I do build both
-AMD64 and ARM64 versions of each of my containers as my linux systems
-use both of these architectures.
+docker-proxy, caddy-storage-redis and caddy-dns/cloudflare plugins. I do
+build both AMD64 and ARM64 versions of each of my containers as my linux
+systems use both of these architectures.
 
 The caddy subdirectory showcases a typical caddy configuration. I do run
 caddy in its container with ports forwarded for port 80 and 443 TCP and
