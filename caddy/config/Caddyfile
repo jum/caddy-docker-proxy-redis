@@ -7,9 +7,7 @@
         storage redis {
                 host "{env.CADDY_REDIS_HOST}"
         }
-        log {
-                output file /data/access.log
-        }
+        log
 }
 
 (defaulthdr) {
@@ -19,6 +17,7 @@
         }
 	encode zstd gzip
         log
+        #tracing
 }
 
 (robots) {
