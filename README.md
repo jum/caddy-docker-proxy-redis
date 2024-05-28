@@ -91,7 +91,7 @@ I used to use the gcplogs log driver built into docker, but I am really
 switching all my projects to structured json based logging and was looking
 for ways to directly feed that into google cloud logging. The docker
 gpclogs driver does not do this (it forwards the JSON as one big log line),
- but I found the project
+ but I found the excellent project
 [ngcplogs](https://github.com/nanoandrew4/ngcplogs)
 that modified the gcplogs driver to extract the structured log info.
 
@@ -110,6 +110,8 @@ like this:
 	"log-driver": "nanoandrew4/ngcplogs:linux-arm64-v1.3.0",
 	"log-opts": {
 		"exclude-timestamp" : "true",
+		"extract-gcp" : "true",
+		"extract-caddy" : "true",
 		"gcp-project": "hosting-XXXXXX",
 		"gcp-meta-name": "myservername"
 		"credentials-json" : "your_json_escaped_credentials.json_file_content"
@@ -123,45 +125,22 @@ The escaped json string for the Google service account with log writing permissi
 go run json-escape.go </path/to/my-service-acct.json
 ```
 
-I am currently working to get two new pull requests for the abouve driver
-to merged. One set of changes extracts already existing Google Cloud style
+The extract-gcp option extracts already existing Google Cloud style
 Trace, labels and source line information from applications that already
 expect their output to be scanned by Google Cloud Logging. For Golang apps
-that use logrus [stackdriver-gae-logrus-plugin](https://github.com/andyfusniak/stackdriver-gae-logrus-plugin) or for log/slog based ones [slogdriver](https://github.com/jussi-kalliokoski/slogdriver) do this.
+that use logrus [stackdriver-gae-logrus-plugin](https://github.com/andyfusniak/stackdriver-gae-logrus-plugin) or for log/slog based ones [slogdriver](https://github.com/jussi-kalliokoski/slogdriver) this works
+nicely.
 
 The slogdriver adapter for log/slog does not parse the traceparent HTTP
 header, I have thus created small piece of middleware that I use to inject
 the trace information as expected by slogdriver into the request context:
 [traceparent](https://github.com/jum/traceparent).
 
-The second change involves extracting fields from Caddy logs to be able to
+The extract-caddy option extracts fields from Caddy logs to be able to
 use caddy as a proper trace parent and also make Google Cloud console
 display caddy access log entries as HTTP requests.
 
-Until these two changes are merged, you can use the following fork of the
-ngcplogs driver (for an Intel based host):
-
-````
-docker plugin install jumager/ngcplogs:linux-amd64-latest
-````
-
-The configuration in /etc/docker/daemon.json needs to be adjusted:
-
-```
-{
-	"log-driver": "jumager/ngcplogs:linux-amd64-latest",
-	"log-opts": {
-		"exclude-timestamp" : "true",
-		"extract-gcp" : "true",
-		"extract-caddy" : "true",
-		"gcp-project": "hosting-XXXXXX",
-		"gcp-meta-name": "myservername"
-		"credentials-json" : "your_json_escaped_credentials.json_file_content"
-	}
-}
-```
-
-The neat effect of all this that I get a full distributed tracing across
+The neat effect of all this that I get a fully distributed tracing across
 multiple nodes without going through the hoops of setting up a full blown
 OTEL setup and a really nice log viewer in the Google Cloud Console.
 
