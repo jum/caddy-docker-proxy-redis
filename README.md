@@ -95,7 +95,7 @@ gpclogs driver does not do this (it forwards the JSON as one big log line),
 [ngcplogs](https://github.com/nanoandrew4/ngcplogs)
 that modified the gcplogs driver to extract the structured log info.
 
-This driver is a docker plgin and is installed like this (for an ARM based
+This driver is a docker plugin and is installed like this (for an ARM based
 host):
 
 ````
@@ -119,7 +119,7 @@ like this:
 }
 ```
 
-The escaped json string for the Google service account with log writing permissions can be gnerated with the json-escape.go program like this:
+The escaped json string for the Google service account with log writing permissions can be generated with the json-escape.go program like this:
 
 ```
 go run json-escape.go </path/to/my-service-acct.json
@@ -128,8 +128,9 @@ go run json-escape.go </path/to/my-service-acct.json
 The extract-gcp option extracts already existing Google Cloud style
 Trace, labels and source line information from applications that already
 expect their output to be scanned by Google Cloud Logging. For Golang apps
-that use logrus [stackdriver-gae-logrus-plugin](https://github.com/andyfusniak/stackdriver-gae-logrus-plugin) or for log/slog based ones [slogdriver](https://github.com/jussi-kalliokoski/slogdriver) this works
-nicely.
+that use logrus
+[stackdriver-gae-logrus-plugin](https://github.com/andyfusniak/stackdriver-gae-logrus-plugin)
+or for log/slog based ones [slogdriver](https://github.com/jussi-kalliokoski/slogdriver) this works nicely.
 
 The slogdriver adapter for log/slog does not parse the traceparent HTTP
 header, I have thus created small piece of middleware that I use to inject
