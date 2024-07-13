@@ -7,6 +7,8 @@ services:
     volumes:
       - /data/nextcloud:/var/www/html
       - ./docker.conf:/usr/local/etc/php-fpm.d/docker.conf
+    environment:
+      REDIS_HOST: redis
     labels:
       caddy: nextcloud.example.org
       caddy.import: nextcloud
