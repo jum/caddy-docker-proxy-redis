@@ -1,0 +1,9 @@
+[Unit]
+Description=Start nextcloud cron job
+
+[Timer]
+Unit=nextcloud.service
+OnCalendar=*:0/5
+
+[Install]
+WantedBy=timers.target

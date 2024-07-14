@@ -361,6 +361,20 @@ configuration relies on the .php files to be present under the same path
 in both the caddy and the nextcloud containers, note the according volume
 mounts of /var/www/html in both containers.
 
+The docker compose file configures to use redis storage for PHP sessions,
+I additionally configure the same redis instance as cache and locking
+backend in my config.php. I do seperate nextcloud caching into it's own
+redis database number, as nextcloud does not expire old entries and an
+occasional "delete *" is in order (preferably after an upgrade) to keep
+the redis storage down.
+
+Additionally you might want to use the occ.sh and cron.sh scripts. The
+cron.sh script triggers background jobs inside the nextcloud container, see
+the nextcloud.timer and nextcloud.service files for a systemd configuration.
+
+The occ.sh script us used to trigger nextcloud command line functions for
+administrative management of the nextcloud instance.
+
 ## Backup
 
 I do run nightly backups via restic to a Hetzner storage box via SFTP.

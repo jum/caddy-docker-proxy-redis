@@ -1,0 +1,11 @@
+[Unit]
+Description=Run nextcloud cron
+Wants=nextcloud.timer
+
+[Service]
+Type=oneshot
+ExecStart=/home/adminuser/web/nextcloud/cron.sh
+Environment="HOME=/home/adminuser"
+
+[Install]
+WantedBy=multi-user.target
