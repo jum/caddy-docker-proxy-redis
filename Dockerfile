@@ -1,5 +1,5 @@
 # Dockerfile for building the project with static assets
-FROM --platform=$BUILDPLATFORM golang:1.22-bullseye as build
+FROM --platform=$BUILDPLATFORM golang:1.23-bullseye AS build
 
 WORKDIR /goapp
 ARG TARGETOS TARGETARCH
@@ -19,10 +19,10 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 		--with github.com/lucaslorentz/caddy-docker-proxy/v2
 
 # Now copy it into our base image.
-FROM alpine:latest as alpine
+FROM alpine:latest AS alpine
 EXPOSE 80 443 443/udp 2019
-ENV XDG_CONFIG_HOME /config
-ENV XDG_DATA_HOME /data
+ENV XDG_CONFIG_HOME=/config
+ENV XDG_DATA_HOME=/data
 RUN apk add -U --no-cache ca-certificates curl
 COPY --from=build /goapp/caddy /bin/caddy
 ENTRYPOINT ["/bin/caddy"]
