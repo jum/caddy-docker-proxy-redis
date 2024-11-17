@@ -3,7 +3,7 @@ services:
   postgres:
     container_name: postgres
     restart: always
-    image: postgres:15-alpine
+    image: postgres:17-alpine
     volumes:
       - /run/postgresql:/run/postgresql
       - ./data:/var/lib/postgresql/data
