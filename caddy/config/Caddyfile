@@ -46,7 +46,12 @@
 }
 
 (nextcloud) {
-	import defaulthdr
+	import robots
+	@gatus {
+		header "User-Agent" "Gatus*"
+		path /status.php
+	}
+	log_skip @gatus
 	root * /var/www/html
 	file_server
 	redir /.well-known/carddav /remote.php/dav 301
