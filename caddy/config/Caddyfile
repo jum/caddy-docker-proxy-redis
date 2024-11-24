@@ -87,6 +87,15 @@
         header @woff2 Cache-Control "max-age=604800"
 }
 
+(authstatic) {
+	import robots
+	header {
+		Access-Control-Allow-Origin https://auth.example.org
+	}
+	root * /data/web/authstatic
+	file_server
+}
+
 {env.CADDY_TAILNET_HOST} {
         import defaulthdr
         log_skip /health
