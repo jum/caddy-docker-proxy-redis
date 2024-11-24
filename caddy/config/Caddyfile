@@ -1,5 +1,5 @@
 {
-        email jens-uwe@mager.org
+        email user@example.org
         cert_issuer acme
 	acme_dns cloudflare {env.CF_API_KEY}
 	auto_https disable_redirects
