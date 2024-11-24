@@ -1,0 +1,33 @@
+name: miniflux
+services:
+  miniflux:
+    container_name: miniflux
+    restart: always
+    image: miniflux/miniflux:latest
+    volumes:
+      - /run/containers:/run/containers
+    ports:
+      - 127.0.0.1:1234:8080
+    environment:
+      DATABASE_URL: postgres://miniflux:GEHEIM@postgres:5432/miniflux?sslmode=disable
+      LISTEN_ADDR: /run/containers/miniflux.sock
+      LOG_FORMAT: json
+      RUN_MIGRATIONS: 1
+      POLLING_FREQUENCY: 60
+      BASE_URL: https://feeds.example.org/
+      OAUTH2_USER_CREATION: true
+      OAUTH2_PROVIDER: oidc
+      OAUTH2_CLIENT_ID: CLIENT_ID
+      OAUTH2_CLIENT_SECRET: CLIENT_SECRET
+      OAUTH2_OIDC_DISCOVERY_ENDPOINT: https://auth.example.org
+      OAUTH2_REDIRECT_URL: https://feeds.example.org/oauth2/oidc/callback
+      DISABLE_LOCAL_AUTH: true
+    labels:
+      caddy: feeds.example.org
+      caddy.import: norobots
+      caddy.log_skip: /healthcheck
+      caddy.reverse_proxy: "unix//run/containers/miniflux.sock"
+networks:
+  default:
+    name: caddy
+    external: true
