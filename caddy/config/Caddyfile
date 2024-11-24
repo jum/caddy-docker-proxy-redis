@@ -7,12 +7,14 @@
         storage redis {
                 host "{env.CADDY_REDIS_HOST}"
         }
-        log
+	log {
+		level INFO
+	}
 }
 
 (defaulthdr) {
         header {
-                Strict-Transport-Security "max-age=15552000; includeSubDomains; preload"
+                Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
                 -Server
         }
 	encode zstd gzip
