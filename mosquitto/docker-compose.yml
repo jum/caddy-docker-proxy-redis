@@ -1,0 +1,16 @@
+services:
+  mosquitto:
+    container_name: mosquitto
+    restart: always
+    image: eclipse-mosquitto
+    volumes:
+      - ./data:/mosquitto/data
+      - ./config:/mosquitto/config
+      - ./log:/mosquitto/log
+    ports:
+      - "127.0.0.1:1883:1883"
+      - "127.0.0.1:9001:9001"
+networks:
+  default:
+    name: caddy
+    external: true
