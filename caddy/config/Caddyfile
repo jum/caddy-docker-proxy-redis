@@ -95,7 +95,7 @@
 }
 
 (authstatic) {
-	import robots
+	import norobots
 	header {
 		Access-Control-Allow-Origin https://auth.example.org
 	}

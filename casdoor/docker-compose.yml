@@ -14,7 +14,7 @@ services:
       RUNNING_IN_DOCKER: "true"
     labels:
       caddy_0: auth.example.org
-      caddy_0.import: defaulthdr
+      caddy_0.import: norobots
       caddy_0.log_skip: /api/health
       caddy_0.reverse_proxy: "{{upstreams 8000}}"
       caddy_1: authstatic.example.org
