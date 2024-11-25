@@ -1,0 +1,20 @@
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: "ghcr.io/home-assistant/home-assistant:stable"
+    environment:
+      FORCE_COLOR: 0
+    volumes:
+      - ./config:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+    labels:
+      caddy: "ha.{env.CADDY_HOST}"
+      caddy.import: norobots
+      caddy.@gatus.header: User-Agent "Gatus*"
+      caddy.@gatus.path: "/api/"
+      caddy.log_skip: "@gatus"
+      caddy.reverse_proxy: "host.docker.internal:8123"
