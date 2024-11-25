@@ -17,8 +17,11 @@ services:
       caddy_0.import: norobots
       caddy_0.log_skip: /api/health
       caddy_0.reverse_proxy: "{{upstreams 8000}}"
-      caddy_1: authstatic.example.org
-      caddy_1.import: authstatic
+      caddy_1: authstatic.mager.org
+      caddy_1.import: norobots
+      caddy_1.header.Access-Control-Allow-Origin: https://auth.example.org
+      caddy_1.root: /data/web/authstatic
+      caddy_1.file_server: '{{""}}'
 networks:
   default:
     name: caddy
