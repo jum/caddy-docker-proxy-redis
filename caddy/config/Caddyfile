@@ -1,5 +1,5 @@
 {
-        email jens-uwe@mager.org
+        email user@example.org
         cert_issuer acme
 	acme_dns cloudflare {env.CF_API_KEY}
 	auto_https disable_redirects
@@ -7,12 +7,14 @@
         storage redis {
                 host "{env.CADDY_REDIS_HOST}"
         }
-        log
+	log {
+		level INFO
+	}
 }
 
 (defaulthdr) {
         header {
-                Strict-Transport-Security "max-age=15552000; includeSubDomains; preload"
+                Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
                 -Server
         }
 	encode zstd gzip
@@ -44,7 +46,12 @@
 }
 
 (nextcloud) {
-	import defaulthdr
+	import robots
+	@gatus {
+		header "User-Agent" "Gatus*"
+		path /status.php
+	}
+	log_skip @gatus
 	root * /var/www/html
 	file_server
 	redir /.well-known/carddav /remote.php/dav 301
@@ -63,6 +70,7 @@
                 -X-Powered-By
         }
 	php_fastcgi nextcloud:9000 {
+                header_up X-Forwarded-For "^(.*)$" "$1,127.0.0.1"
 		env front_controller_active true
                 env modHeadersAvailable true
 	}

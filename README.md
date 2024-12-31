@@ -361,6 +361,10 @@ configuration relies on the .php files to be present under the same path
 in both the caddy and the nextcloud containers, note the according volume
 mounts of /var/www/html in both containers.
 
+I also add the fixed proxy address 127.0.0.1 to the X-Forwarded-For
+header and in my config.php in the trusted_proxy section to make
+the nextcloud proxy recognition happy.
+
 The docker compose file configures to use redis storage for PHP sessions,
 I additionally configure the same redis instance as cache and locking
 backend in my config.php. I do seperate nextcloud caching into it's own

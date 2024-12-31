@@ -27,7 +27,7 @@ jobs:
       - name: Set caddy version
         id: caddy_version
         run: |
-          if test ${{ github.ref_name }} == develop; then echo "::set-output name=version::master"; else echo "::set-output name=version::latest"; fi
+          if test ${{ github.ref_name }} == develop; then echo "version=master" >> $GITHUB_OUTPUT; else echo "version=latest" >> $GITHUB_OUTPUT; fi
       - name: Build and push
         uses: docker/build-push-action@v5
         with:

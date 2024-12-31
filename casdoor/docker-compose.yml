@@ -1,0 +1,28 @@
+name: casdoor
+services:
+  casdoor:
+    container_name: casdoor
+    restart: always
+    image: jumager/casdoor:master
+    volumes:
+      - ./conf:/conf
+      - ./logs:/logs
+      - ./files:/files
+    ports:
+      - 127.0.0.1:8000:8000
+    environment:
+      RUNNING_IN_DOCKER: "true"
+    labels:
+      caddy_0: auth.example.org
+      caddy_0.import: norobots
+      caddy_0.log_skip: /api/health
+      caddy_0.reverse_proxy: "{{upstreams 8000}}"
+      caddy_1: authstatic.mager.org
+      caddy_1.import: norobots
+      caddy_1.header.Access-Control-Allow-Origin: https://auth.example.org
+      caddy_1.root: /data/web/authstatic
+      caddy_1.file_server: '{{""}}'
+networks:
+  default:
+    name: caddy
+    external: true

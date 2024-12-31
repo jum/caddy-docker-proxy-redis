@@ -1,0 +1,35 @@
+name: vault
+services:
+  vault:
+    container_name: vault
+    restart: always
+    image: vaultwarden/server:latest
+    volumes:
+      - ./data:/data
+    ports:
+      - 127.0.0.1:11001:80
+    environment:
+      DOMAIN: "https://vault.example.org"
+      DATABASE_URL: "postgresql://vault:GEHEIM@postgres:5432/vault"
+      ADMIN_TOKEN: "ADMINTOKEN"
+      PUSH_ENABLED: "true"
+      PUSH_INSTALLATION_ID: "PUSH_INSTALL_ID"
+      PUSH_INSTALLATION_KEY: "PUSH_KEY"
+      SIGNUPS_ALLOWED: "false"
+      SMTP_HOST: "smtp.gmail.com"
+      SMTP_FROM: "no-reply@example.org"
+      SMTP_PORT: 465
+      SMTP_SECURITY: "force_tls"
+      SMTP_USERNAME: "no-reply@example.org"
+      SMTP_PASSWORD: "SMTP_PASSWORD"
+      ROCKET_LOG_LEVEL: "normal"
+      ROCKET_CLI_COLORS: "false"
+    labels:
+      caddy: vault.example.org
+      caddy.import: defaulthdr
+      caddy.log_skip: /alive
+      caddy.reverse_proxy: "{{upstreams 80}}"
+networks:
+  default:
+    name: caddy
+    external: true
