@@ -8,7 +8,9 @@
   "labels": [
     "node-16:docker://jumager/node-docker:16-bullseye",
     "node-20:docker://jumager/node-docker:20-bullseye",
+    "node-23:docker://jumager/node-docker:23-bookworm",
     "ubuntu-latest:docker://jumager/node-docker:16-bullseye",
+    "ubuntu-24.04:docker://jumager/node-docker:23-bookworm",
     "ubuntu-22.04:docker://jumager/node-docker:16-bullseye",
     "ubuntu-20.04:docker://jumager/node-docker:16-bullseye",
     "ubuntu-18.04:docker://node:16-buster"
