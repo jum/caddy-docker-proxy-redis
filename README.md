@@ -428,3 +428,14 @@ script, it is called to dump any databases before backing up. The script
 for redis will dump the memory to a file, the mariadb and postgres
 containers will dump the complete database. I also use this with some
 sqlite projects to perform a textual dump of the database.
+
+This script does also backup /var/lib/docker, which is probably what
+you want if you use docker volumes that should be persistent. I do
+mount all my persistent valumes using volume mounts relative to the
+directory where the docker-compose.yml file is located. This way
+I do not have valuable data in /var/lib/docker and therefore do not
+include it in my backup. The only hosts (in my installations) that
+have considerable amount of data in /var/lib/docker are act_runner
+hosts, which have the cache volumes there. I do not want to
+backup these, as they are huge and easily recreated on the next
+docker builds.
