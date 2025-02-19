@@ -70,7 +70,6 @@
                 -X-Powered-By
         }
 	php_fastcgi nextcloud:9000 {
-                header_up X-Forwarded-For "^(.*)$" "$1,127.0.0.1"
 		env front_controller_active true
                 env modHeadersAvailable true
 	}
