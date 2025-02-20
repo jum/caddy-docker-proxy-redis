@@ -37,8 +37,8 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             CADDY_VERSION=${{ steps.caddy_version.outputs.version }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          #cache-from: type=gha
+          #cache-to: type=gha,mode=max
       - name: Send Webhook Notification
         if: always()
         env:
