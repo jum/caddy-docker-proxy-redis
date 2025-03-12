@@ -122,7 +122,7 @@ like this:
 The escaped json string for the Google service account with log writing permissions can be generated with the json-escape.go program like this:
 
 ```
-go run json-escape.go </path/to/my-service-acct.json
+./json-escape.sh </path/to/my-service-acct.json
 ```
 
 The extract-gcp option extracts already existing Google Cloud style
@@ -360,10 +360,6 @@ import in the nextcloud/docker-compose.yml. The php fastcgi
 configuration relies on the .php files to be present under the same path
 in both the caddy and the nextcloud containers, note the according volume
 mounts of /var/www/html in both containers.
-
-I also add the fixed proxy address 127.0.0.1 to the X-Forwarded-For
-header and in my config.php in the trusted_proxy section to make
-the nextcloud proxy recognition happy.
 
 The docker compose file configures to use redis storage for PHP sessions,
 I additionally configure the same redis instance as cache and locking
