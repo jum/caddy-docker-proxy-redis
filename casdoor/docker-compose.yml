@@ -3,7 +3,7 @@ services:
   casdoor:
     container_name: casdoor
     restart: always
-    image: jumager/casdoor:master
+    image: jumager/casdoor:local_deploy
     volumes:
       - ./conf:/conf
       - ./logs:/logs
