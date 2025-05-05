@@ -17,7 +17,7 @@ following setup:
 * All nodes run docker and one instance of the watchtower container
     for easy automatic upgrades of the individual packages.
 * Docker is configured to log to Google Cloud Logging for easy log file
-    monitoring. This is may not be relevant for most people, but for me
+    monitoring (optional). This is may not be relevant for most people, but for me
     it makes perusing logs much easier.
 * All docker containers are started via a docker-compose.yml file. Each
     of those gets their own subdirectory with the docker-compose.yml
@@ -102,7 +102,7 @@ host):
 docker plugin install nanoandrew4/ngcplogs:linux-arm64-v1.3.0
 ````
 
-The driver is configured as usual in /etc/docker/dameon.json
+The driver is configured as usual in /etc/docker/daemon.json
 like this:
 
 ```
