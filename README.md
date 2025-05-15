@@ -363,10 +363,7 @@ mounts of /var/www/html in both containers.
 
 The docker compose file configures to use redis storage for PHP sessions,
 I additionally configure the same redis instance as cache and locking
-backend in my config.php. I do seperate nextcloud caching into it's own
-redis database number, as nextcloud does not expire old entries and an
-occasional "delete *" is in order (preferably after an upgrade) to keep
-the redis storage down.
+backend in my config.php.
 
 Additionally you might want to use the occ.sh and cron.sh scripts. The
 cron.sh script triggers background jobs inside the nextcloud container, see
