@@ -39,17 +39,31 @@ following setup:
 All the referenced docker-compose files below assume a docker bridge
 network named caddy, see the networks.sh script.
 
-I do override configuration on the docker service via creating the
-directory /etc/systemd/system/docker.service.d and creating a file
-override.conf like this:
+My docker services need the tailscale network to be up and running, it is
+thus necessary to wait for tailscale up and running before any docker
+containers are being run, even on reboot. To make this happen, I create a tailscale-up.service:
 
 ```
 [Unit]
+Description=Wait for tailscale up
 After=tailscaled.service
+Requires=tailscaled.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/sh -c "/usr/bin/tailscale up; echo tailscale-up"
 ```
 
-The After= section makes sure that docker starts after tailscale is
-initialized. This is necessary to achieve name resolution via the
+I install that /etc/systemd/system, and create a symlink to make
+docker.service "want" this service:
+
+```
+sudo cp tailscale-up.service /etc/systemd/system
+sudo mkdir /etc/systemd/system/docker.service.wants
+sudo ln -s /etc/systemd/system/tailscale-up.service /etc/systemd/system/docker.service.wants/tailscale-up.service
+```
+
+This is necessary to achieve name resolution via the
 tailscale magic DNS feature from within the docker caddy container. If
 you cannot resolve your services in your tailnet (this example uses a
 redis server reachable from all nodes over the private tailnet), you can
@@ -60,27 +74,13 @@ docker exec -it caddy cat /etc/resolv.conf
 ```
 
 On some Linux distributions the /etc/resolv.conf is overwritten multiple
-times, in these cases the caddy docker container picked up an
-intermidiate version of resolv.conf and not the final one. So the caddy
+times, in these cases the caddy docker container may pick up an
+intermediate version of resolv.conf and not the final one. So the caddy
 resolv.conf should match the hosts /etc/resolv.conf exactly.
 
 From my experience the use of NetworkManager together with cloud-init is
-prone to produce these situation. In these cases it might be advised to
-change the above dependency to After=tailscale-up.service and use the
-following tailscale-up.service file:
-
-```
-[Unit]
-Description=Wait for tailscale up
-After=tailscaled.service
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/sh -c "/usr/bin/tailscale up; echo tailscale-up"
-```
-
-Experimenting with systemd-resolved might also reduce the number of
-overwrites to the resolv.conf file.
+prone to produce these situation. The above tailscale-up requirement
+should delay that docker daemon start enough to avoid this problem.
 
 ## Logging to Google Cloud Logging (Stackdriver)
 
