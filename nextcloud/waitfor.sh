@@ -1,7 +1,5 @@
 #!/bin/sh
 
-set -vx
-
 wait_for_tcp_port() {
   local host="$1"
   local port="$2"
