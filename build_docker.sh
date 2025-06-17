@@ -2,7 +2,7 @@
 DOCKER_PREFIX=jumager/caddy
 branch=$(basename $(git rev-parse --abbrev-ref HEAD))
 CADDY_VERSION=latest
-if test X$branch = Xdevelop
+if test X$branch != Xmaster
 then
     CADDY_VERSION=master
 fi
