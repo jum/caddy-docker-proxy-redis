@@ -14,7 +14,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 	--mount=type=cache,target=/go/pkg \
 	GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
 	xcaddy build ${CADDY_VERSION} \
-		--with github.com/tailscale/caddy-tailscale \
+		--with github.com/jum/caddy-tailscale@test-listener \
 		--with github.com/pberkel/caddy-storage-redis \
 		--with github.com/caddy-dns/cloudflare \
 		--with github.com/lucaslorentz/caddy-docker-proxy/v2
