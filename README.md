@@ -154,7 +154,7 @@ look like this:
 ; AAAA Record
 @	3600	 IN 	AAAA	XXXX:XXX:XXXX:XXX::1
 
-; CNAME Record
+; A and AAAA Records for the www subdomain
 www	3600	 IN 	A		X.X.X.X
 			 IN		AAAA	XXXX:XXX:XXXX:XXX::1
 
