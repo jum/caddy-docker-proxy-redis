@@ -135,8 +135,8 @@ nextcloud example, if you do not need nextcloud drop this.
 To support naked domains (e.g. redirecting from example.com to
 www.example.com) I use the naked snippet. You need to define an A (and
 AAAA, if you use IPv6) record pointing to your host instance besides the
-normal CNAME record pointing to the canonical name for your host for the
-www subdomain. This would normally look like this:
+normal A and AAAA records for the www subdomain. This would normally
+look like this:
 
 ```
 ; SOA Record
@@ -149,13 +149,14 @@ www subdomain. This would normally look like this:
 					) 
 
 ; A Record
-@	3600	 IN 	A	X.X.X.X
+@	3600	 IN 	A		X.X.X.X
 
 ; AAAA Record
-@	600	 IN 	AAAA	XXXX:XXX:XXXX:XXX::1
+@	3600	 IN 	AAAA	XXXX:XXX:XXXX:XXX::1
 
 ; CNAME Record
-www	3600	 IN 	CNAME	www.example.org.
+www	3600	 IN 	A		X.X.X.X
+			 IN		AAAA	XXXX:XXX:XXXX:XXX::1
 
 ```
 
@@ -174,7 +175,8 @@ label section in the docker-compose.yml:
       caddy_1.reverse_proxy: "unix//run/containers/example-www.sock"
 ```
 
-This assumes that the container serving the example.com domain is listening under a UNIX domain socket and also exposes a /health endpoint
+This assumes that the container serving the example.com domain is
+listening under a UNIX domain socket and also exposes a /health endpoint
 that should not be recorded in the logs.
 
 Recently I started to use ACME DNS verification for some domains, for
