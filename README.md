@@ -6,7 +6,7 @@ I do have a few linux virtual servers spread around in various data
 centers. Originally that was mostly nginx front ends to various locally
 installed applications, all supervised by systemd. Changing to caddy
 as the proxy server was a fresh breeze as the configuration got much
-simpler and there where no shell scripts needed any longer to update
+simpler and there were no shell scripts needed any longer to update
 certificates with letsencrypt. Still a lot installed on each server, but
 simpler.
 
@@ -56,7 +56,7 @@ Type=oneshot
 ExecStart=/usr/bin/sh -c "/usr/bin/tailscale up; echo tailscale-up"
 ```
 
-I install that /etc/systemd/system, and create a symlink to make
+I install that in /etc/systemd/system, and create a symlink to make
 docker.service "want" this service:
 
 ```
@@ -174,9 +174,8 @@ label section in the docker-compose.yml:
       caddy_1.reverse_proxy: "unix//run/containers/example-www.sock"
 ```
 
-This assumes that container serving the example.com domain is listening
-under a UNIX domain socket and also exposes a /health endpoint that
-should not be recorded in the logs.
+This assumes that the container serving the example.com domain is listening under a UNIX domain socket and also exposes a /health endpoint
+that should not be recorded in the logs.
 
 Recently I started to use ACME DNS verification for some domains, for
 this reason I add the cloudflare caddy DNS module for my DNS provider.
