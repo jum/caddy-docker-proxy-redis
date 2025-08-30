@@ -15,33 +15,35 @@ following setup:
 
 * All nodes run tailscale as an overlay VPN for admin functions.
 * All nodes run docker and one instance of the watchtower container
-    for easy automatic upgrades of the individual packages.
-* Docker is configured to log to Google Cloud Logging for easy log file
-    monitoring (optional). This is may not be relevant for most people, but for me
-    it makes perusing logs much easier.
+  for easy automatic upgrades of the individual packages.
+* Docker and journald are configured to log to either Google Cloud
+  Logging or Grafana Cloud for easy log file monitoring. This is may
+  not be relevant for most people, but for me it makes perusing logs
+  much easier. As this description is a bit longer and entirely optional, it is moved to [LOGGING.md](LOGGING.md).
 * All docker containers are started via a docker-compose.yml file. Each
-    of those gets their own subdirectory with the docker-compose.yml
-    file alongside any additional configuration and data volumes needed.
+  of those gets their own subdirectory with the docker-compose.yml
+  file alongside any additional configuration and data volumes needed.
 * I run caddy with the docker-proxy and caddy-storage-redis plugins in a
-    container as front end proxy.
+  container as front end proxy.
 * Individual containers for the services use caddy docker proxy label
-    fragments for configuration in the individual docker-compose.yml
-    files.
+  fragments for configuration in the individual docker-compose.yml
+  files.
 * All caddy instances share a common storage backend (a redis instance
-    reached via the tailscale overlay vpn) for tls certificate storage.
-    This facilitates easy moving a service from one server box to another
-    without a lot of downtime due to missing TLS certificates.
+  reached via the tailscale overlay vpn) for tls certificate storage.
+  This facilitates easy moving a service from one server box to another
+  without a lot of downtime due to missing TLS certificates.
 * I use an instance of gatus to monitor all these services and get
-    notified by email about any failures. The caddy health check is on
-    the tailscale side, so I check both the status of the tailnet as
-    well as caddy basics working in one check.
+  notified by email about any failures. The caddy health check is on
+  the tailscale side, so I check both the status of the tailnet as
+  well as caddy basics working in one check.
 
 All the referenced docker-compose files below assume a docker bridge
 network named caddy, see the networks.sh script.
 
 My docker services need the tailscale network to be up and running, it is
 thus necessary to wait for tailscale up and running before any docker
-containers are being run, even on reboot. To make this happen, I create a tailscale-up.service:
+containers are being run, even on reboot. To make this happen, I create
+a tailscale-up.service:
 
 ```
 [Unit]
@@ -80,70 +82,7 @@ resolv.conf should match the hosts /etc/resolv.conf exactly.
 
 From my experience the use of NetworkManager together with cloud-init is
 prone to produce these situation. The above tailscale-up requirement
-should delay that docker daemon start enough to avoid this problem.
-
-## Logging to Google Cloud Logging (Stackdriver)
-
-The Google Cloud configuration is optional if you like to use journalctl
-on the individual hosts.
-
-I used to use the gcplogs log driver built into docker, but I am really
-switching all my projects to structured json based logging and was looking
-for ways to directly feed that into google cloud logging. The docker
-gpclogs driver does not do this (it forwards the JSON as one big log line),
- but I found the excellent project
-[ngcplogs](https://github.com/nanoandrew4/ngcplogs)
-that modified the gcplogs driver to extract the structured log info.
-
-This driver is a docker plugin and is installed like this (for an ARM based
-host):
-
-````
-docker plugin install nanoandrew4/ngcplogs:linux-arm64-v1.3.0
-````
-
-The driver is configured as usual in /etc/docker/daemon.json
-like this:
-
-```
-{
-	"log-driver": "nanoandrew4/ngcplogs:linux-arm64-v1.3.0",
-	"log-opts": {
-		"exclude-timestamp" : "true",
-		"extract-gcp" : "true",
-		"extract-caddy" : "true",
-		"gcp-project": "hosting-XXXXXX",
-		"gcp-meta-name": "myservername"
-		"credentials-json" : "your_json_escaped_credentials.json_file_content"
-	}
-}
-```
-
-The escaped json string for the Google service account with log writing permissions can be generated with the json-escape.go program like this:
-
-```
-./json-escape.sh </path/to/my-service-acct.json
-```
-
-The extract-gcp option extracts already existing Google Cloud style
-Trace, labels and source line information from applications that already
-expect their output to be scanned by Google Cloud Logging. For Golang apps
-that use logrus
-[stackdriver-gae-logrus-plugin](https://github.com/andyfusniak/stackdriver-gae-logrus-plugin)
-or for log/slog based ones [slogdriver](https://github.com/jussi-kalliokoski/slogdriver) this works nicely.
-
-The slogdriver adapter for log/slog does not parse the traceparent HTTP
-header, I have thus created small piece of middleware that I use to inject
-the trace information as expected by slogdriver into the request context:
-[traceparent](https://github.com/jum/traceparent).
-
-The extract-caddy option extracts fields from Caddy logs to be able to
-use caddy as a proper trace parent and also make Google Cloud console
-display caddy access log entries as HTTP requests.
-
-The neat effect of all this that I get a fully distributed tracing across
-multiple nodes without going through the hoops of setting up a full blown
-OTEL setup and a really nice log viewer in the Google Cloud Console.
+should delay the docker daemon start enough to avoid this problem.
 
 ## Caddy
 
@@ -152,6 +91,21 @@ build-docker.sh script to build the container that runs caddy with the
 docker-proxy, caddy-storage-redis and caddy-dns/cloudflare plugins. I do
 build both AMD64 and ARM64 versions of each of my containers as my linux
 systems use both of these architectures.
+
+There are currently three branches in this repository, and they are slightly different in the way they are using caddy:
+
+* The master branch tracks the release versions of caddy and is supposed
+  to be the stable version.
+* The develop branch tracks the current HEAD of caddy and thus contains
+  the latest version of caddy whenever it was built last. This may be a
+  bit more unstable. I use it in production on some of my machines.
+* The tailscale branch is like develop, but also includes the module
+  [caddy-tailscale](https://github.com/tailscale/caddy-tailscale). This
+  is highly experimental and due to problems with the caddy restart
+  mechanism and how caddy-tailscale works, only the patched fork
+  [caddy-tailscale](https://github.com/jum/caddy-tailscale/tree/test-listener)
+  appears to work cleanly. I do rebase and force push the tailscale
+  branch to be based on develop.
 
 The caddy subdirectory showcases a typical caddy configuration. I do run
 caddy in its container with ports forwarded for port 80 and 443 TCP and
@@ -225,8 +179,8 @@ under a UNIX domain socket and also exposes a /health endpoint that
 should not be recorded in the logs.
 
 Recently I started to use ACME DNS verification for some domains, for
-this reason I add the cloudflare caddy DNS module for my DNS provider. The
-above configuration with caddy_X.tls.dns tell caddy to use ACME DNS
+this reason I add the cloudflare caddy DNS module for my DNS provider.
+The above configuration with caddy_X.tls.dns tell caddy to use ACME DNS
 instead of HTTP based verification for generating TLS certificates. You
 could also add this to the base Caddyfile snippet, but only if you use
 only one DNS provider account. I recently moved from godaddy to
@@ -248,9 +202,9 @@ The docker container mounts the runtime directory of tailscale and not
 the socket file itself (how it is done for the docker socket). This is
 due to the fact that docker virtual mounts will not notice if the
 underlying file is recreated upon restarting the listening daemon. For
-the docker socket this does not matter, as if docker is restart all
-containers will restart as well. As a further complication, the
-tailscaled.service files not specify the option to preserve the
+the docker socket this does not matter, because if docker is restarted
+all containers will be restarted as well. As a further complication,
+the tailscaled.service files not specify the option to preserve the
 directory /var/run/tailscale at daemon restart, making a mount of
 /var/run/tailscale instead of the socket not work. But there is an
 option in systemd to make that work, create a directory named
@@ -276,7 +230,9 @@ https://github.com/tailscale/tailscale/issues/9362
 The container defined in the watchtower subdirectory is responsible for
 updating the containers actually running on the host, with the exception
 of watchtower itself. Letting watchtower update itself does not appear
-to be working, but fortunately this is mature software and changes seldomly.
+to be working, but fortunately this is mature software and changes
+seldomly.
+
 Please note that you should set a random password for the watchtower API
 in this docker-compose.yml. This container also needs to access your
 docker credentials in your home directory for accessing your docker
@@ -330,7 +286,7 @@ these databases from anywhere inside your tailnet.
 I do host my own private git repositories and the assorted CI/CD
 pipelines using gitea. The subdirectiory gitea shows an example
 docker-compose.yml file. Please note that I use something like this in
-my app.ini for gitea to reverse proxy via a unix socket:
+my app.ini for gitea to reverse proxy via an unix socket:
 
 ```
 [server]
@@ -347,8 +303,8 @@ itself. If the runner nodes need to update via watchtower, make sure they
 are running in your tailnet. Before you start, run the register.sh script
 to register the runner node. I think the standard runner images of gitea
 do not contain what I need on a runner, I am thus changing my workflows
-to run on node-20 instead of ubuntu, and my config.yml point to my prepared
-image. See
+to run on node-23 instead of ubuntu, and my config.yml point to my
+prepared image. See
 [act_runner_image](https://gitea.mager.org/jum/act_runner_image.git)
 for what I use.
 
@@ -359,15 +315,19 @@ decided to put that as a snippet in the base Caddyfile and just put the
 import in the nextcloud/docker-compose.yml. The php fastcgi
 configuration relies on the .php files to be present under the same path
 in both the caddy and the nextcloud containers, note the according volume
-mounts of /var/www/html in both containers.
+mounts of /var/www/html in both containers. Please note that on some
+nextcloud updates the whole directory structure of /var/www/html is
+updated and my require a restart of the caddy docker container after the
+nextcloud update to let caddy pick up the changed files. A typical
+symptom that this is necessary is missing toolbar icons in nextcloud.
 
-The docker compose file configures to use redis storage for PHP sessions,
-I additionally configure the same redis instance as cache and locking
-backend in my config.php.
+The docker compose file configures nextcloud to use redis storage for
+PHP sessions, I additionally configure the same redis instance as cache and locking backend in my config.php.
 
 Additionally you might want to use the occ.sh and cron.sh scripts. The
-cron.sh script triggers background jobs inside the nextcloud container, see
-the nextcloud.timer and nextcloud.service files for a systemd configuration.
+cron.sh script triggers background jobs inside the nextcloud container,
+see the nextcloud.timer and nextcloud.service files for a systemd
+configuration.
 
 The occ.sh script us used to trigger nextcloud command line functions for
 administrative management of the nextcloud instance.
