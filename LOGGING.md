@@ -1,7 +1,7 @@
 # Logging using log aggregation
 
 There are two ways that I am playing with to perform logging to an
-external logging service: Google Cloud stackdriver lgging and Grafana
+external logging service: Google Cloud stackdriver logging and Grafana
 Cloud Loki. I do like to check all my logs at a central location for all
 my various linux servers. Logging at one central location also has the
 advantage that I can centrally manage any alerting based on strings in
@@ -112,7 +112,7 @@ pipeline:
 ```
 
 The biggest part in the above config is mapping journald priorities to
-stackdriver severities. Please not the use of the Google Cloud
+stackdriver severities. Please note the use of the Google Cloud
 credentials file and the addition of standard instance_id and zone
 resource labels. The directory /var/lib/fluent-bit for journald
 synchronization needs to be created once.

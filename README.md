@@ -205,7 +205,7 @@ due to the fact that docker virtual mounts will not notice if the
 underlying file is recreated upon restarting the listening daemon. For
 the docker socket this does not matter, because if docker is restarted
 all containers will be restarted as well. As a further complication,
-the tailscaled.service files not specify the option to preserve the
+the tailscaled.service files do not specify the option to preserve the
 directory /var/run/tailscale at daemon restart, making a mount of
 /var/run/tailscale instead of the socket not work. But there is an
 option in systemd to make that work, create a directory named
