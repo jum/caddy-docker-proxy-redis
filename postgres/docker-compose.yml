@@ -6,7 +6,7 @@ services:
     image: postgres:18-alpine
     volumes:
       - /run/postgresql:/run/postgresql
-      - ./data:/var/lib/postgresql/18/data
+      - ./data:/var/lib/postgresql/18/docker
     ports:
       - 127.0.0.1:5432:5432
       - 100.X.X.X:6379:5432
