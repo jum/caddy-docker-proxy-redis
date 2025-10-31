@@ -179,6 +179,15 @@ The neat effect of all this that I get a fully distributed tracing across
 multiple nodes without going through the hoops of setting up a full blown
 OTEL setup and a really nice log viewer in the Google Cloud Console.
 
+### Alert Notifications
+
+Google cloud logging does have some powerful alerting, for example based
+on logs. I do use alerting to be notified stack traces and I also use some
+log message based alerting. I have a simple project:
+[alert2discord](https://gitea.mager.org/jum/alert2discord) that forwards
+Google Cloud Alerts to a discord channel using a webhook running as Cloud
+Run app.
+
 ## Logging to Grafana Cloud (Loki)
 
 For logging to Grafana Loki you will need to get the credentials from
