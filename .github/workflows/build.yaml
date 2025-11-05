@@ -1,5 +1,4 @@
 name: Build docker container and push to Docker Hub
-run-name: ${{ github.actor }}
 on:
   push:
     branches:
