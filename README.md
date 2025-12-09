@@ -93,7 +93,8 @@ docker-proxy, caddy-storage-redis and caddy-dns/cloudflare plugins. I do
 build both AMD64 and ARM64 versions of each of my containers as my linux
 systems use both of these architectures.
 
-There are currently three branches in this repository, and they are slightly different in the way they are using caddy:
+There are currently three branches in this repository, and they are
+slightly different in the way they are using caddy:
 
 * The master branch tracks the release versions of caddy and is supposed
   to be the stable version.
