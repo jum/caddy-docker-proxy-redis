@@ -192,7 +192,7 @@ simpletrace {
 }
 ```
 
-Mor information can be found in the simpletrace github repo
+More information can be found in the simpletrace github repo
 [caddy-simpletrace](https://github.com/jum/caddy-simpletrace)
 
 The neat effect of all this that I get a fully distributed tracing across
