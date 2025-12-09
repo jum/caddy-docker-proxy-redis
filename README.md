@@ -19,7 +19,8 @@ following setup:
 * Docker and journald are configured to log to either Google Cloud
   Logging or Grafana Cloud for easy log file monitoring. This is may
   not be relevant for most people, but for me it makes perusing logs
-  much easier. As this description is a bit longer and entirely optional, it is moved to [LOGGING.md](LOGGING.md).
+  much easier. As this description is a bit longer and entirely optional,
+  it is moved to [LOGGING.md](LOGGING.md).
 * All docker containers are started via a docker-compose.yml file. Each
   of those gets their own subdirectory with the docker-compose.yml
   file alongside any additional configuration and data volumes needed.
@@ -101,10 +102,7 @@ There are currently three branches in this repository, and they are slightly dif
   bit more unstable. I use it in production on some of my machines.
 * The tailscale branch is like develop, but also includes the module
   [caddy-tailscale](https://github.com/tailscale/caddy-tailscale). This
-  is highly experimental and due to problems with the caddy restart
-  mechanism and how caddy-tailscale works, only the patched fork
-  [caddy-tailscale](https://github.com/jum/caddy-tailscale/tree/test-listener)
-  appears to work cleanly. I do rebase and force push the tailscale
+  is highly experimental. I do rebase and force push the tailscale
   branch to be based on develop.
 
 The caddy subdirectory showcases a typical caddy configuration. I do run
