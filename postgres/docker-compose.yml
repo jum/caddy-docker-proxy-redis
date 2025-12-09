@@ -13,7 +13,7 @@ services:
       - 100.X.X.X:6379:5432
     environment:
       POSTGRES_PASSWORD: Secret_password
-    command: ["postgres", "-c", "config_file=/config/postgresql.conf"
+    command: ["postgres", "-c", "config_file=/config/postgresql.conf"]
 networks:
   default:
     name: caddy
