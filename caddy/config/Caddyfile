@@ -10,7 +10,7 @@
 	log {
 		level INFO
 	}
-	#order simpletrace before rewrite
+	order simpletrace before rewrite
 }
 
 (defaulthdr) {
@@ -20,7 +20,9 @@
         }
 	encode zstd gzip
         log
-        #simpletrace
+        simpletrace {
+                format stackdriver
+        }
 }
 
 (robots) {

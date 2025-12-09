@@ -173,7 +173,27 @@ context: [traceparent](https://github.com/jum/traceparent).
 
 The extract-caddy option extracts fields from Caddy logs to be able to
 use caddy as a proper trace parent and also make Google Cloud console
-display caddy access log entries as HTTP requests.
+display caddy access log entries as HTTP requests. To make sure that
+caddy emits trace parent information the tracing directive in the
+Caddfile is used. But tracing involves the complete OTEL machinery,
+so this build of caddy includes the simpletrace caddy module to just
+do traceparent handling. For stackdriver format logging the global
+section of the Caddfile should have:
+
+```
+order simpletrace before rewrite
+```
+
+The default snippet that is included should look like this:
+
+```
+simpletrace {
+  format stackdriver
+}
+```
+
+Mor information can be found in the simpletrace github repo
+[caddy-simpletrace](https://github.com/jum/caddy-simpletrace)
 
 The neat effect of all this that I get a fully distributed tracing across
 multiple nodes without going through the hoops of setting up a full blown
@@ -298,3 +318,5 @@ The loki docker plug-in does already handle log lines in json format. To
 propagate traceparent information for golang apps using a suitable http
 middleware and adding trace information to the log see:
 [slog-traceparent](https://github.com/jum/slog-traceparent)
+
+The simpletrace format for Loki would be "tempo".
