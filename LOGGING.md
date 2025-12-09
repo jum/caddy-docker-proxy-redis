@@ -181,7 +181,7 @@ do traceparent handling. For stackdriver format logging the global
 section of the Caddfile should have:
 
 ```
-order simpletrace before rewrite
+order simpletrace first
 ```
 
 The default snippet that is included should look like this:

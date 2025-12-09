@@ -10,7 +10,7 @@
 	log {
 		level INFO
 	}
-	order simpletrace before rewrite
+	order simpletrace first
 }
 
 (defaulthdr) {
