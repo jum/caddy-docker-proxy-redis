@@ -93,7 +93,7 @@ docker-proxy, caddy-storage-redis and caddy-dns/cloudflare plugins. I do
 build both AMD64 and ARM64 versions of each of my containers as my linux
 systems use both of these architectures.
 
-There are currently three branches in this repository, and they are
+There are currently two branches in this repository, and they are
 slightly different in the way they are using caddy:
 
 * The master branch tracks the release versions of caddy and is supposed
@@ -101,10 +101,6 @@ slightly different in the way they are using caddy:
 * The develop branch tracks the current HEAD of caddy and thus contains
   the latest version of caddy whenever it was built last. This may be a
   bit more unstable. I use it in production on some of my machines.
-* The tailscale branch is like develop, but also includes the module
-  [caddy-tailscale](https://github.com/tailscale/caddy-tailscale). This
-  is highly experimental. I do rebase and force push the tailscale
-  branch to be based on develop.
 
 The caddy subdirectory showcases a typical caddy configuration. I do run
 caddy in its container with ports forwarded for port 80 and 443 TCP and
