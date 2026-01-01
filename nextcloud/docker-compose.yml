@@ -19,11 +19,9 @@ services:
       POSTGRES_PASSWORD: redacted
       POSTGRES_HOST: postgres
       NEXTCLOUD_TRUSTED_DOMAINS: nextcloud.example.org
-    ports:
-      - 127.0.0.1:9000:9000
     labels:
       caddy: nextcloud.example.org
-      caddy.import: nextcloud
+      caddy.import: nextcloud {{upstreams 9000}}
 networks:
   default:
     name: caddy
