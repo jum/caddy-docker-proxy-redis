@@ -22,6 +22,22 @@ services:
     labels:
       caddy: nextcloud.example.org
       caddy.import: nextcloud {{upstreams 9000}}
+  notify_push:
+    container_name: notify_push
+    restart: always
+    image: jumager/notify_push:local_deploy
+    volumes:
+      - /run/containers:/run/containers
+    environment:
+      REDIS_URL: redis://redis
+      DATABASE_URL: postgres://nextcloud:redacted@postgres/nextcloud
+      DATABASE_PREFIX: oc_
+      NEXTCLOUD_URL: https://nextcloud.example.org
+      SOCKET_PATH: /run/containers/notify_push.sock
+    labels:
+      caddy: nextcloud.exmaple.org
+      caddy.handle_path: "/push/*"
+      caddy.handle_path.reverse_proxy: "unix//run/containers/notify_push.sock"
 networks:
   default:
     name: caddy

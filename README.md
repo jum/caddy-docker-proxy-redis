@@ -318,7 +318,27 @@ nextcloud update to let caddy pick up the changed files. A typical
 symptom that this is necessary is missing toolbar icons in nextcloud.
 
 The docker compose file configures nextcloud to use redis storage for
-PHP sessions, I additionally configure the same redis instance as cache and locking backend in my config.php.
+PHP sessions, I additionally configure the same redis instance as cache
+and locking backend in my config.php. Is also starts the notify_push
+service, which is able to reduce load on the nextcloud server by
+aribtrating push notficictons to browser based nextcloud clients. Beyond
+requiring the use of redis sever for both nextcloud and notifiy_push,
+this will probably need the configuration of the host IP itself as a
+trusted proxy in the global caddy section under servers:
+
+```
+  servers {
+    protocols h1 h2 h3
+    trusted_proxies static 1.2.3.4/32
+  }
+```
+
+The notfiy push server also needs to be configured on the nextcloud side
+by using the occ command:
+
+```
+./occ.sh notify_push:setup https://nextcloud.example.org/push
+```
 
 Additionally you might want to use the occ.sh and cron.sh scripts. The
 cron.sh script triggers background jobs inside the nextcloud container,
