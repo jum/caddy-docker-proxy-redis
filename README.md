@@ -13,33 +13,37 @@ simpler.
 My most recent iteration in making the administrative side easier is the
 following setup:
 
-* All nodes run tailscale as an overlay VPN for admin functions.
-* All nodes run docker and one instance of the watchtower container
+- All nodes run tailscale as an overlay VPN for admin functions.
+- All nodes run docker and one instance of the watchtower container
   for easy automatic upgrades of the individual packages.
-* Docker and journald are configured to log to either Google Cloud
+- Docker and journald are configured to log to either Google Cloud
   Logging or Grafana Cloud for easy log file monitoring. This is may
   not be relevant for most people, but for me it makes perusing logs
   much easier. As this description is a bit longer and entirely optional,
   it is moved to [LOGGING.md](LOGGING.md).
-* All docker containers are started via a docker-compose.yml file. Each
+- All docker containers are started via a docker-compose.yml file. Each
   of those gets their own subdirectory with the docker-compose.yml
   file alongside any additional configuration and data volumes needed.
-* I run caddy with the docker-proxy and caddy-storage-redis plugins in a
+- I run caddy with the docker-proxy and caddy-storage-redis plugins in a
   container as front end proxy.
-* Individual containers for the services use caddy docker proxy label
+- Individual containers for the services use caddy docker proxy label
   fragments for configuration in the individual docker-compose.yml
   files.
-* All caddy instances share a common storage backend (a redis instance
+- All caddy instances share a common storage backend (a redis instance
   reached via the tailscale overlay vpn) for tls certificate storage.
   This facilitates easy moving a service from one server box to another
   without a lot of downtime due to missing TLS certificates.
-* I use an instance of gatus to monitor all these services and get
+- I use an instance of gatus to monitor all these services and get
   notified by email about any failures. The caddy health check is on
   the tailscale side, so I check both the status of the tailnet as
   well as caddy basics working in one check.
 
-All the referenced docker-compose files below assume a docker bridge
-network named caddy, see the networks.sh script.
+All the referenced docker-compose files below assume a docker bridge network
+named caddy, see the networks.sh script. This contains two variants to bring up
+the caddy network, one that includes IPv6 configuration for the which is
+commented out and the regular one that is IPv4 only. Use the IPv6 one if your
+host has a properly working IPv6 configuraton and you want containers to use
+IPv6 as well.
 
 My docker services need the tailscale network to be up and running, it is
 thus necessary to wait for tailscale up and running before any docker
@@ -89,30 +93,36 @@ should delay the docker daemon start enough to avoid this problem.
 
 The root directory of this repo contains the Dockerfile and a
 build-docker.sh script to build the container that runs caddy with the
-docker-proxy, caddy-storage-redis and caddy-dns/cloudflare plugins. I do
-build both AMD64 and ARM64 versions of each of my containers as my linux
-systems use both of these architectures.
+docker-proxy, caddy-storage-redis, caddy-simpletrace  and
+caddy-dns/cloudflare plugins. I do build both AMD64 and ARM64 versions
+of each of my containers as my linux systems use both of these architectures.
 
 There are currently two branches in this repository, and they are
 slightly different in the way they are using caddy:
 
-* The master branch tracks the release versions of caddy and is supposed
+- The master branch tracks the release versions of caddy and is supposed
   to be the stable version.
-* The develop branch tracks the current HEAD of caddy and thus contains
+- The develop branch tracks the current HEAD of caddy and thus contains
   the latest version of caddy whenever it was built last. This may be a
   bit more unstable. I use it in production on some of my machines.
 
-The caddy subdirectory showcases a typical caddy configuration. I do run
-caddy in its container with ports forwarded for port 80 and 443 TCP and
-443 UDP for QUIC aka HTTP/3. For easier configuration of the individual
-services I do include Caddyfile snippets in the config/Caddfile
-subdirectory. The caddy docker-proxy configuration to build a final
-Caddyfile can get a bit obscure for more complicated containers like
-nextcloud. I use a defaulthdr snippet (for an example see the whoami
-section later) to set HSTS headers, set the log file and enable
-compression. This snipped might be replaced by the norobots snippet that
-whould inhibit crawling for API style sites or the robots snippet for
-normal content with some obnoxius robots excluded.
+The caddy subdirectory showcases a typical caddy configuration. I do run caddy
+in its container with host networking instead of running it in the typical
+bridged network environment the other containser run. This is necessary so that
+caddy can create the proper X-Forward-For headers and put correct client ip
+addresses in the log. Some services like nextcloud are also very picky and will
+not work properly if the trusted proxy configuration is not right. If you have a
+firewall configured, make sure ports 80, 443 are open for tcp and 443 is also
+opened for UDP, to make HTTP/3 aka QUIC possible.
+
+For easier configuration of the individual services I do include Caddyfile
+snippets in the config/Caddfile subdirectory. The caddy docker-proxy
+configuration to build a final Caddyfile can get a bit obscure for more
+complicated containers like nextcloud. I use a defaulthdr snippet (for an
+example see the whoami section later) to set HSTS headers, set the log file and
+enable compression. This snipped might be replaced by the norobots snippet that
+whould inhibit crawling for API style sites or the robots snippet for normal
+content with some obnoxius robots excluded.
 
 This Caddyfile also defines a https site on the tailscale side for the
 host, this has by default just a /health endpoint for health checking.
@@ -141,7 +151,7 @@ look like this:
 					7200
 					604800
 					3600
-					) 
+					)
 
 ; A Record
 @	3600	 IN 	A		X.X.X.X
@@ -244,7 +254,7 @@ curl -s -H "Authorization: Bearer Secret_Token" \
 I do use this in my gitea CI/CD pipelines to trigger container reloads
 on affected hosts after building a container. As this accesses the
 watchtower container via the tailnet, that only works for private
-action runners that are part of your tailnet. 
+action runners that are part of your tailnet.
 
 ## Whoami
 
