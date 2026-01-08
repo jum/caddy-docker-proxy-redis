@@ -4,14 +4,11 @@ services:
     container_name: nextcloud
     restart: always
     image: nextcloud:fpm-alpine
-    entrypoint: ["/wrapper-entrypoint.sh"]
     volumes:
       - /data/nextcloud:/var/www/html
       - ./docker.conf:/usr/local/etc/php-fpm.d/xxdocker.conf
       - ./php-session-gc.ini:/usr/local/etc/php/conf.d/php-session-gc.ini
       - ./opcache-recommended.ini:/usr/local/etc/php/conf.d/opcache-recommended.ini
-      - ./waitfor.sh:/waitfor.sh
-      - ./wrapper-entrypoint.sh:/wrapper-entrypoint.sh
     environment:
       REDIS_HOST: redis
       POSTGRES_DB: nextcloud
