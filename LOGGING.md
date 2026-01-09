@@ -309,7 +309,8 @@ like this:
 	"log-driver": "loki",
 	"log-opts": {
 		"loki-url": "https://my_grafana_user_id:my_grafana_password@logs-prod-XXX.grafana.net/loki/api/v1/push",
-		"loki-external-labels": "job=docker,instance=myhost,zone=myzone"
+		"loki-external-labels": "job=docker,instance=myhost,zone=myzone",
+		"loki-pipeline-stages": "- json:\n    expressions:\n      level: level\n- labels:\n    level:"
 	}
 }
 ```
@@ -319,4 +320,10 @@ propagate traceparent information for golang apps using a suitable http
 middleware and adding trace information to the log see:
 [slog-traceparent](https://github.com/jum/slog-traceparent)
 
-The simpletrace format for Loki would be "tempo".
+The simpletrace format for Loki would be "tempo". The Grafana user interface
+will not automatically correlate al traceID's without full OTEL export. But it
+is able to find all log entries once an traceID is known using queries:
+
+```
+{instance="my_instance"}  | json | traceID="6df114d900f8d0627f4eb91f914c402a"
+```
