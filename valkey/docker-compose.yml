@@ -1,0 +1,28 @@
+services:
+  valkey-prepare:
+    image: valkey/valkey:unstable
+    container_name: valkey-prepare
+    user: root
+    entrypoint: /bin/sh
+    command: -c "mkdir -p /run/valkey && chmod 777 /run/valkey"
+    volumes:
+      - /run/valkey:/run/valkey
+
+  valkey:
+    container_name: valkey
+    restart: always
+    image: valkey/valkey:unstable
+    depends_on:
+      valkey-prepare:
+        condition: service_completed_successfully
+    volumes:
+      - /run/valkey:/run/valkey
+      - ./data:/data
+      - ./valkey.conf:/usr/local/etc/valkey/valkey.conf
+    command: valkey-server /usr/local/etc/valkey/valkey.conf
+    sysctls:
+      - net.core.somaxconn=512
+networks:
+  default:
+    name: caddy
+    external: true
