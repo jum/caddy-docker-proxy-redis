@@ -390,6 +390,13 @@ do
 	then
 		sudo -u adminuser sh -c "cd $dir; ./dumpdb.sh"
 	fi
+  if test -x "$dir/dumpdbout.sh"
+  then
+    restic $VERBOSE backup \
+      --stdin-filename $dir/dumpdb.db \
+      --stdin-from-command -- \
+      sudo -u adminuser sh -c "cd $dir; ./dumpdbout.sh"
+  fi
 done
 
 restic $VERBOSE backup --exclude-caches=true \
