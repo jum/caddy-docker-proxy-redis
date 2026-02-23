@@ -93,7 +93,7 @@ should delay the docker daemon start enough to avoid this problem.
 
 The root directory of this repo contains the Dockerfile and a
 build-docker.sh script to build the container that runs caddy with the
-docker-proxy, caddy-storage-redis, caddy-simpletrace  and
+docker-proxy, caddy-storage-redis, caddy-simpletrace and
 caddy-dns/cloudflare plugins. I do build both AMD64 and ARM64 versions
 of each of my containers as my linux systems use both of these architectures.
 
@@ -272,12 +272,17 @@ Adminer is a nice tool to examine mariadb or postgres databases. I do
 only run it exposed on the tailscale host name under the /adminer
 endpoint, and then only when I need it.
 
-## Redis
+## Redis/Valkey
 
-One node in the tailscale VPN should run redis for storing the TLS
+One node in the tailscale VPN should run redis/valkey for storing the TLS
 certifcates. The redis subdirectory contains an example for this, please
 note that this also has to expose the tailnet side of the hosts IP (the
 100.X.X.X IP in the docker-compose.yml file for use in redis URLs.
+
+I started with redis, but I have recently switched all my redis instances
+to valkey. The primary reason was the advent of json logging in valkey,
+which until 9.1 is released is only available in the latest docker build
+tag. See the valkey directory for an example of using valkey.
 
 ## Databases
 
@@ -309,7 +314,7 @@ itself. If the runner nodes need to update via watchtower, make sure they
 are running in your tailnet. Before you start, run the register.sh script
 to register the runner node. I think the standard runner images of gitea
 do not contain what I need on a runner, I am thus changing my workflows
-to run on node-23 instead of ubuntu, and my config.yml point to my
+to run on node-23 instead of ubuntu, and my config.yml points to my
 prepared image. See
 [act_runner_image](https://gitea.mager.org/jum/act_runner_image.git)
 for what I use.
@@ -331,7 +336,7 @@ The docker compose file configures nextcloud to use redis storage for
 PHP sessions, I additionally configure the same redis instance as cache
 and locking backend in my config.php. Is also starts the notify_push
 service, which is able to reduce load on the nextcloud server by
-aribtrating push notficictons to browser based nextcloud clients. Beyond
+arbitrating push notficictons to browser based nextcloud clients. Beyond
 requiring the use of redis sever for both nextcloud and notifiy_push,
 this will probably need the configuration of the host IP itself as a
 trusted proxy in the global caddy section under servers:
