@@ -418,7 +418,9 @@ If the directory with the docker-compose.yaml file has a dumpdb.sh
 script, it is called to dump any databases before backing up. The script
 for redis will dump the memory to a file, the mariadb and postgres
 containers will dump the complete database. I also use this with some
-sqlite projects to perform a textual dump of the database.
+sqlite projects to perform a textual dump of the database. If this script
+is named dumpdbout.sh the standard output of the script will be used to
+backup instead, avoiding temporary files.
 
 This script does also backup /var/lib/docker, which is probably what
 you want if you use docker volumes that should be persistent. I do
