@@ -1,0 +1,25 @@
+services:
+  valkey:
+    container_name: valkey
+    restart: always
+    image: valkey/valkey:unstable
+    # Start as root to allow mkdir/chmod on the host-mounted volume
+    user: root
+    # The command first ensures the directory exists and is writable, 
+    # then calls the image's original entrypoint to start Valkey.
+    # The entrypoint will automatically drop privileges to the 'valkey' user.
+    command: >
+      sh -c "mkdir -p /run/valkey && chmod 777 /run/valkey && exec docker-entrypoint.sh valkey-server /usr/local/etc/valkey/valkey.conf"
+    volumes:
+      - /run/valkey:/run/valkey
+      - ./data:/data
+      - ./valkey.conf:/usr/local/etc/valkey/valkey.conf
+    ports:
+      - 127.0.0.1:6379:6379
+      - 100.X.X.X:6379:6379
+    sysctls:
+      - net.core.somaxconn=512
+networks:
+  default:
+    name: caddy
+    external: true

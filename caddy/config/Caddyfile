@@ -10,6 +10,7 @@
 	log {
 		level INFO
 	}
+	order simpletrace first
 }
 
 (defaulthdr) {
@@ -19,7 +20,9 @@
         }
 	encode zstd gzip
         log
-        #tracing
+        simpletrace {
+                format stackdriver
+        }
 }
 
 (robots) {
@@ -69,7 +72,7 @@
                 X-Robots-Tag "noindex, nofollow"
                 -X-Powered-By
         }
-	php_fastcgi nextcloud:9000 {
+	php_fastcgi {args[:]} {
 		env front_controller_active true
                 env modHeadersAvailable true
 	}

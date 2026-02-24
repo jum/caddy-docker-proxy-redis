@@ -17,4 +17,4 @@ services:
       caddy.@gatus.header: User-Agent "Gatus*"
       caddy.@gatus.path: "/api/"
       caddy.log_skip: "@gatus"
-      caddy.reverse_proxy: "host.docker.internal:8123"
+      caddy.reverse_proxy: "127.0.0.1:8123"

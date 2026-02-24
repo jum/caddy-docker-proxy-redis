@@ -3,7 +3,7 @@ services:
   watchtower:
     container_name: watchtower
     restart: always
-    image: containrrr/watchtower
+    image: beatkind/watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - $HOME/.docker/config.json:/config.json

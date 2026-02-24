@@ -10,11 +10,7 @@ services:
       - ./data:/data
       - ./config:/config
       - /data/nextcloud:/var/www/html
-    ports:
-      - 80:80
-      - 443:443
-      - 443:443/udp
-      - 127.0.0.1:2019:2019
+    network_mode: host
     environment:
       - CADDY_INGRESS_NETWORKS=caddy
       - CADDY_DOCKER_CADDYFILE_PATH=/config/Caddyfile
@@ -22,7 +18,4 @@ services:
       - CADDY_TAILNET_HOST=server.tailXXXXX.ts.net
       - CADDY_REDIS_HOST=redis-host.tailXXXXX.ts.net
       - CF_API_KEY=YOUR_CLOUDFLARE_API_KEY
-networks:
-  default:
-    name: caddy
-    external: true
+      - GOOGLE_CLOUD_PROJECT=hosting-XXXXX

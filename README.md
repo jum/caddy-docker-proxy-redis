@@ -13,32 +13,37 @@ simpler.
 My most recent iteration in making the administrative side easier is the
 following setup:
 
-* All nodes run tailscale as an overlay VPN for admin functions.
-* All nodes run docker and one instance of the watchtower container
+- All nodes run tailscale as an overlay VPN for admin functions.
+- All nodes run docker and one instance of the watchtower container
   for easy automatic upgrades of the individual packages.
-* Docker and journald are configured to log to either Google Cloud
+- Docker and journald are configured to log to either Google Cloud
   Logging or Grafana Cloud for easy log file monitoring. This is may
   not be relevant for most people, but for me it makes perusing logs
-  much easier. As this description is a bit longer and entirely optional, it is moved to [LOGGING.md](LOGGING.md).
-* All docker containers are started via a docker-compose.yml file. Each
+  much easier. As this description is a bit longer and entirely optional,
+  it is moved to [LOGGING.md](LOGGING.md).
+- All docker containers are started via a docker-compose.yml file. Each
   of those gets their own subdirectory with the docker-compose.yml
   file alongside any additional configuration and data volumes needed.
-* I run caddy with the docker-proxy and caddy-storage-redis plugins in a
+- I run caddy with the docker-proxy and caddy-storage-redis plugins in a
   container as front end proxy.
-* Individual containers for the services use caddy docker proxy label
+- Individual containers for the services use caddy docker proxy label
   fragments for configuration in the individual docker-compose.yml
   files.
-* All caddy instances share a common storage backend (a redis instance
+- All caddy instances share a common storage backend (a redis instance
   reached via the tailscale overlay vpn) for tls certificate storage.
   This facilitates easy moving a service from one server box to another
   without a lot of downtime due to missing TLS certificates.
-* I use an instance of gatus to monitor all these services and get
+- I use an instance of gatus to monitor all these services and get
   notified by email about any failures. The caddy health check is on
   the tailscale side, so I check both the status of the tailnet as
   well as caddy basics working in one check.
 
-All the referenced docker-compose files below assume a docker bridge
-network named caddy, see the networks.sh script.
+All the referenced docker-compose files below assume a docker bridge network
+named caddy, see the networks.sh script. This contains two variants to bring up
+the caddy network, one that includes IPv6 configuration for the which is
+commented out and the regular one that is IPv4 only. Use the IPv6 one if your
+host has a properly working IPv6 configuraton and you want containers to use
+IPv6 as well.
 
 My docker services need the tailscale network to be up and running, it is
 thus necessary to wait for tailscale up and running before any docker
@@ -88,36 +93,36 @@ should delay the docker daemon start enough to avoid this problem.
 
 The root directory of this repo contains the Dockerfile and a
 build-docker.sh script to build the container that runs caddy with the
-docker-proxy, caddy-storage-redis and caddy-dns/cloudflare plugins. I do
-build both AMD64 and ARM64 versions of each of my containers as my linux
-systems use both of these architectures.
+docker-proxy, caddy-storage-redis, caddy-simpletrace and
+caddy-dns/cloudflare plugins. I do build both AMD64 and ARM64 versions
+of each of my containers as my linux systems use both of these architectures.
 
-There are currently three branches in this repository, and they are slightly different in the way they are using caddy:
+There are currently two branches in this repository, and they are
+slightly different in the way they are using caddy:
 
-* The master branch tracks the release versions of caddy and is supposed
+- The master branch tracks the release versions of caddy and is supposed
   to be the stable version.
-* The develop branch tracks the current HEAD of caddy and thus contains
+- The develop branch tracks the current HEAD of caddy and thus contains
   the latest version of caddy whenever it was built last. This may be a
   bit more unstable. I use it in production on some of my machines.
-* The tailscale branch is like develop, but also includes the module
-  [caddy-tailscale](https://github.com/tailscale/caddy-tailscale). This
-  is highly experimental and due to problems with the caddy restart
-  mechanism and how caddy-tailscale works, only the patched fork
-  [caddy-tailscale](https://github.com/jum/caddy-tailscale/tree/test-listener)
-  appears to work cleanly. I do rebase and force push the tailscale
-  branch to be based on develop.
 
-The caddy subdirectory showcases a typical caddy configuration. I do run
-caddy in its container with ports forwarded for port 80 and 443 TCP and
-443 UDP for QUIC aka HTTP/3. For easier configuration of the individual
-services I do include Caddyfile snippets in the config/Caddfile
-subdirectory. The caddy docker-proxy configuration to build a final
-Caddyfile can get a bit obscure for more complicated containers like
-nextcloud. I use a defaulthdr snippet (for an example see the whoami
-section later) to set HSTS headers, set the log file and enable
-compression. This snipped might be replaced by the norobots snippet that
-whould inhibit crawling for API style sites or the robots snippet for
-normal content with some obnoxius robots excluded.
+The caddy subdirectory showcases a typical caddy configuration. I do run caddy
+in its container with host networking instead of running it in the typical
+bridged network environment the other containser run. This is necessary so that
+caddy can create the proper X-Forward-For headers and put correct client ip
+addresses in the log. Some services like nextcloud are also very picky and will
+not work properly if the trusted proxy configuration is not right. If you have a
+firewall configured, make sure ports 80, 443 are open for tcp and 443 is also
+opened for UDP, to make HTTP/3 aka QUIC possible.
+
+For easier configuration of the individual services I do include Caddyfile
+snippets in the config/Caddfile subdirectory. The caddy docker-proxy
+configuration to build a final Caddyfile can get a bit obscure for more
+complicated containers like nextcloud. I use a defaulthdr snippet (for an
+example see the whoami section later) to set HSTS headers, set the log file and
+enable compression. This snipped might be replaced by the norobots snippet that
+whould inhibit crawling for API style sites or the robots snippet for normal
+content with some obnoxius robots excluded.
 
 This Caddyfile also defines a https site on the tailscale side for the
 host, this has by default just a /health endpoint for health checking.
@@ -146,7 +151,7 @@ look like this:
 					7200
 					604800
 					3600
-					) 
+					)
 
 ; A Record
 @	3600	 IN 	A		X.X.X.X
@@ -205,7 +210,7 @@ due to the fact that docker virtual mounts will not notice if the
 underlying file is recreated upon restarting the listening daemon. For
 the docker socket this does not matter, because if docker is restarted
 all containers will be restarted as well. As a further complication,
-the tailscaled.service files not specify the option to preserve the
+the tailscaled.service files do not specify the option to preserve the
 directory /var/run/tailscale at daemon restart, making a mount of
 /var/run/tailscale instead of the socket not work. But there is an
 option in systemd to make that work, create a directory named
@@ -249,7 +254,7 @@ curl -s -H "Authorization: Bearer Secret_Token" \
 I do use this in my gitea CI/CD pipelines to trigger container reloads
 on affected hosts after building a container. As this accesses the
 watchtower container via the tailnet, that only works for private
-action runners that are part of your tailnet. 
+action runners that are part of your tailnet.
 
 ## Whoami
 
@@ -267,12 +272,17 @@ Adminer is a nice tool to examine mariadb or postgres databases. I do
 only run it exposed on the tailscale host name under the /adminer
 endpoint, and then only when I need it.
 
-## Redis
+## Redis/Valkey
 
-One node in the tailscale VPN should run redis for storing the TLS
+One node in the tailscale VPN should run redis/valkey for storing the TLS
 certifcates. The redis subdirectory contains an example for this, please
 note that this also has to expose the tailnet side of the hosts IP (the
 100.X.X.X IP in the docker-compose.yml file for use in redis URLs.
+
+I started with redis, but I have recently switched all my redis instances
+to valkey. The primary reason was the advent of json logging in valkey,
+which until 9.1 is released is only available in the latest docker build
+tag. See the valkey directory for an example of using valkey.
 
 ## Databases
 
@@ -304,7 +314,7 @@ itself. If the runner nodes need to update via watchtower, make sure they
 are running in your tailnet. Before you start, run the register.sh script
 to register the runner node. I think the standard runner images of gitea
 do not contain what I need on a runner, I am thus changing my workflows
-to run on node-23 instead of ubuntu, and my config.yml point to my
+to run on node-23 instead of ubuntu, and my config.yml points to my
 prepared image. See
 [act_runner_image](https://gitea.mager.org/jum/act_runner_image.git)
 for what I use.
@@ -323,7 +333,27 @@ nextcloud update to let caddy pick up the changed files. A typical
 symptom that this is necessary is missing toolbar icons in nextcloud.
 
 The docker compose file configures nextcloud to use redis storage for
-PHP sessions, I additionally configure the same redis instance as cache and locking backend in my config.php.
+PHP sessions, I additionally configure the same redis instance as cache
+and locking backend in my config.php. Is also starts the notify_push
+service, which is able to reduce load on the nextcloud server by
+arbitrating push notficictons to browser based nextcloud clients. Beyond
+requiring the use of redis sever for both nextcloud and notifiy_push,
+this will probably need the configuration of the host IP itself as a
+trusted proxy in the global caddy section under servers:
+
+```
+  servers {
+    protocols h1 h2 h3
+    trusted_proxies static 1.2.3.4/32
+  }
+```
+
+The notfiy push server also needs to be configured on the nextcloud side
+by using the occ command:
+
+```
+./occ.sh notify_push:setup https://nextcloud.example.org/push
+```
 
 Additionally you might want to use the occ.sh and cron.sh scripts. The
 cron.sh script triggers background jobs inside the nextcloud container,
@@ -360,6 +390,13 @@ do
 	then
 		sudo -u adminuser sh -c "cd $dir; ./dumpdb.sh"
 	fi
+  if test -x "$dir/dumpdbout.sh"
+  then
+    restic $VERBOSE backup \
+      --stdin-filename $dir/dumpdb.db \
+      --stdin-from-command -- \
+      sudo -u adminuser sh -c "cd $dir; ./dumpdbout.sh"
+  fi
 done
 
 restic $VERBOSE backup --exclude-caches=true \
@@ -381,7 +418,9 @@ If the directory with the docker-compose.yaml file has a dumpdb.sh
 script, it is called to dump any databases before backing up. The script
 for redis will dump the memory to a file, the mariadb and postgres
 containers will dump the complete database. I also use this with some
-sqlite projects to perform a textual dump of the database.
+sqlite projects to perform a textual dump of the database. If this script
+is named dumpdbout.sh the standard output of the script will be used to
+backup instead, avoiding temporary files.
 
 This script does also backup /var/lib/docker, which is probably what
 you want if you use docker volumes that should be persistent. I do

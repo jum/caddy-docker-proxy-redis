@@ -1,11 +1,9 @@
 name: Build docker container and push to Docker Hub
-run-name: ${{ github.actor }}
 on:
   push:
     branches:
       - master
       - develop
-      - tailscale
   workflow_dispatch:
 jobs:
   Build-Docker:
@@ -28,9 +26,9 @@ jobs:
       - name: Set caddy version
         id: caddy_version
         run: |
-          if test ${{ github.ref_name }} == develop; then echo "version=master" >> $GITHUB_OUTPUT; else echo "version=latest" >> $GITHUB_OUTPUT; fi
+          if test ${{ github.ref_name }} != master; then echo "version=master" >> $GITHUB_OUTPUT; else echo "version=latest" >> $GITHUB_OUTPUT; fi
       - name: Build and push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm64

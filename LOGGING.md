@@ -1,7 +1,7 @@
 # Logging using log aggregation
 
 There are two ways that I am playing with to perform logging to an
-external logging service: Google Cloud stackdriver lgging and Grafana
+external logging service: Google Cloud stackdriver logging and Grafana
 Cloud Loki. I do like to check all my logs at a central location for all
 my various linux servers. Logging at one central location also has the
 advantage that I can centrally manage any alerting based on strings in
@@ -112,7 +112,7 @@ pipeline:
 ```
 
 The biggest part in the above config is mapping journald priorities to
-stackdriver severities. Please not the use of the Google Cloud
+stackdriver severities. Please note the use of the Google Cloud
 credentials file and the addition of standard instance_id and zone
 resource labels. The directory /var/lib/fluent-bit for journald
 synchronization needs to be created once.
@@ -173,11 +173,40 @@ context: [traceparent](https://github.com/jum/traceparent).
 
 The extract-caddy option extracts fields from Caddy logs to be able to
 use caddy as a proper trace parent and also make Google Cloud console
-display caddy access log entries as HTTP requests.
+display caddy access log entries as HTTP requests. To make sure that
+caddy emits trace parent information the tracing directive in the
+Caddfile is used. But tracing involves the complete OTEL machinery,
+so this build of caddy includes the simpletrace caddy module to just
+do traceparent handling. For stackdriver format logging the global
+section of the Caddfile should have:
+
+```
+order simpletrace first
+```
+
+The default snippet that is included should look like this:
+
+```
+simpletrace {
+  format stackdriver
+}
+```
+
+More information can be found in the simpletrace github repo
+[caddy-simpletrace](https://github.com/jum/caddy-simpletrace)
 
 The neat effect of all this that I get a fully distributed tracing across
 multiple nodes without going through the hoops of setting up a full blown
 OTEL setup and a really nice log viewer in the Google Cloud Console.
+
+### Alert Notifications
+
+Google cloud logging does have some powerful alerting, for example based
+on logs. I do use alerting to be notified stack traces and I also use some
+log message based alerting. I have a simple project:
+[alert2discord](https://gitea.mager.org/jum/alert2discord) that forwards
+Google Cloud Alerts to a discord channel using a webhook running as Cloud
+Run app.
 
 ## Logging to Grafana Cloud (Loki)
 
@@ -280,7 +309,8 @@ like this:
 	"log-driver": "loki",
 	"log-opts": {
 		"loki-url": "https://my_grafana_user_id:my_grafana_password@logs-prod-XXX.grafana.net/loki/api/v1/push",
-		"loki-external-labels": "job=docker,instance=myhost,zone=myzone"
+		"loki-external-labels": "job=docker,instance=myhost,zone=myzone",
+		"loki-pipeline-stages": "- json:\n    expressions:\n      level: level\n- labels:\n    level:"
 	}
 }
 ```
@@ -289,3 +319,11 @@ The loki docker plug-in does already handle log lines in json format. To
 propagate traceparent information for golang apps using a suitable http
 middleware and adding trace information to the log see:
 [slog-traceparent](https://github.com/jum/slog-traceparent)
+
+The simpletrace format for Loki would be "tempo". The Grafana user interface
+will not automatically correlate al traceID's without full OTEL export. But it
+is able to find all log entries once an traceID is known using queries:
+
+```
+{instance="my_instance"}  | json | traceID="6df114d900f8d0627f4eb91f914c402a"
+```
