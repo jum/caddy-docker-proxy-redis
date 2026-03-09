@@ -14,10 +14,10 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
     xcaddy build ${CADDY_VERSION} \
-    --with github.com/pberkel/caddy-storage-redis \
+    --with github.com/pberkel/caddy-storage-redis@main \
     --with github.com/caddy-dns/cloudflare \
     --with github.com/jum/caddy-simpletrace \
-    --with github.com/lucaslorentz/caddy-docker-proxy/v2
+    --with github.com/lucaslorentz/caddy-docker-proxy/v2@master
 
 # Now copy it into our base image.
 FROM alpine:latest AS alpine
