@@ -2,7 +2,7 @@ services:
   valkey:
     container_name: valkey
     restart: always
-    image: valkey/valkey:unstable
+    image: valkey/valkey:9.1
     # Start as root to allow mkdir/chmod on the host-mounted volume
     user: root
     # The command first ensures the directory exists and is writable, 
