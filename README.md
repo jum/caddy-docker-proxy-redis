@@ -329,7 +329,8 @@ in both the caddy and the nextcloud containers, note the according volume
 mounts of /var/www/html in both containers. Please note that on some
 nextcloud updates the whole directory structure of /var/www/html is
 updated and my require a restart of the caddy docker container after the
-nextcloud update to let caddy pick up the changed files. A typical
+nextcloud update to let caddy pick up the changed files. A similar restart
+of caddy might be required after updating the notify_push service. A typical
 symptom that this is necessary is missing toolbar icons in nextcloud.
 
 The docker compose file configures nextcloud to use redis storage for
