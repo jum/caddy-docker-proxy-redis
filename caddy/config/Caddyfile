@@ -1,12 +1,12 @@
 {
-        email user@example.org
-        cert_issuer acme
+    email user@example.org
+    cert_issuer acme
 	acme_dns cloudflare {env.CF_API_KEY}
 	auto_https disable_redirects
-        default_sni {env.CADDY_HOST}
-        storage redis {
-                host "{env.CADDY_REDIS_HOST}"
-        }
+    default_sni {$CADDY_HOST}
+    storage redis {
+        host "{env.CADDY_REDIS_HOST}"
+    }
 	log {
 		level INFO
 	}
@@ -14,23 +14,23 @@
 }
 
 (defaulthdr) {
-        header {
-                Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-                -Server
-        }
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        -Server
+    }
 	encode zstd gzip
-        log
-        simpletrace {
-                format stackdriver
-        }
+    log
+    simpletrace {
+        format stackdriver
+    }
 }
 
 (robots) {
 	import defaulthdr
 	handle_path /robots.txt {
-		file_server * {
-			root /data/web/robots/robots.txt
-		}
+	    file_server * {
+	    	root /data/web/robots/robots.txt
+	    }
 	}
 }
 
