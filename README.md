@@ -247,7 +247,7 @@ updated containers for an individual host:
 
 ```
 #!/bin/sh
-curl -s -H "Authorization: Bearer Secret_Token" \
+curl -s -X POST -H "Authorization: Bearer Secret_Token" \
 	https://host.tailXXXXX.ts.net/watchtower/v1/update
 ```
 
