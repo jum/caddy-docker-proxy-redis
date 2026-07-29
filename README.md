@@ -47,27 +47,12 @@ IPv6 as well.
 
 My docker services need the tailscale network to be up and running, it is
 thus necessary to wait for tailscale up and running before any docker
-containers are being run, even on reboot. To make this happen, I create
-a tailscale-up.service:
-
-```
-[Unit]
-Description=Wait for tailscale up
-After=tailscaled.service
-Requires=tailscaled.service
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/sh -c "/usr/bin/tailscale up; echo tailscale-up"
-```
-
-I install that in /etc/systemd/system, and create a symlink to make
+containers are being run, even on reboot. To make this happen I create a symlink from the tailscale-online.target to make
 docker.service "want" this service:
 
 ```
-sudo cp tailscale-up.service /etc/systemd/system
 sudo mkdir /etc/systemd/system/docker.service.wants
-sudo ln -s /etc/systemd/system/tailscale-up.service /etc/systemd/system/docker.service.wants/tailscale-up.service
+sudo ln -s /usr/lib/systemd/system/tailscale-online.target /etc/systemd/system/docker.service.wants/tailscale-online.target
 ```
 
 This is necessary to achieve name resolution via the
@@ -86,7 +71,7 @@ intermediate version of resolv.conf and not the final one. So the caddy
 resolv.conf should match the hosts /etc/resolv.conf exactly.
 
 From my experience the use of NetworkManager together with cloud-init is
-prone to produce these situation. The above tailscale-up requirement
+prone to produce these situation. The above tailscale-online requirement
 should delay the docker daemon start enough to avoid this problem.
 
 ## Caddy
@@ -247,7 +232,7 @@ updated containers for an individual host:
 
 ```
 #!/bin/sh
-curl -s -H "Authorization: Bearer Secret_Token" \
+curl -s -X POST -H "Authorization: Bearer Secret_Token" \
 	https://host.tailXXXXX.ts.net/watchtower/v1/update
 ```
 
@@ -329,7 +314,8 @@ in both the caddy and the nextcloud containers, note the according volume
 mounts of /var/www/html in both containers. Please note that on some
 nextcloud updates the whole directory structure of /var/www/html is
 updated and my require a restart of the caddy docker container after the
-nextcloud update to let caddy pick up the changed files. A typical
+nextcloud update to let caddy pick up the changed files. A similar restart
+of caddy might be required after updating the notify_push service. A typical
 symptom that this is necessary is missing toolbar icons in nextcloud.
 
 The docker compose file configures nextcloud to use redis storage for
