@@ -372,28 +372,32 @@ export RESTIC_PASSWORD_FILE=$HOME/.restic-backup-hostXXX
 docker compose ls --format json|jq -r '.[]|.ConfigFiles' | while read yaml
 do
 	dir=`dirname "$yaml"`
+  user=`stat --format '%U' $dir`
 	if test -x "$dir/dumpdb.sh"
 	then
-		sudo -u adminuser sh -c "cd $dir; ./dumpdb.sh"
+		sudo -u $user sh -c "cd $dir; ./dumpdb.sh"
 	fi
   if test -x "$dir/dumpdbout.sh"
   then
     restic $VERBOSE backup \
+      --tag db-backup \
       --stdin-filename $dir/dumpdb.db \
       --stdin-from-command -- \
-      sudo -u adminuser sh -c "cd $dir; ./dumpdbout.sh"
+      sudo -u $user sh -c "cd $dir; ./dumpdbout.sh"
   fi
 done
 
 restic $VERBOSE backup --exclude-caches=true \
-	/etc/docker /var/lib/docker \
+  --tag dir-backup \
+  /etc/docker /var/lib/docker \
 	/usr/local \
 	/home/adminuser /root
 restic $VERBOSE forget \
 	--keep-daily 7 --keep-weekly 5 --keep-monthly 12 \
 	--keep-yearly 100 --prune
 
-chown -R adminuser:adminuser /home/adminuser/.cache/restic
+ownergroup=`stat --format %U:%G $HOME`
+chown -R $ownergroup $HOME/.cache/restic
 ```
 
 This scripts assumes that the subdirectories for the docker containers
