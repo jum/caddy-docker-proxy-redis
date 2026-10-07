@@ -293,7 +293,7 @@ HTTP_PORT = 3000
 HTTP_ADDR = /run/containers/gitea.sock
 ```
 
-The act_runner directory contains the docker compose setup for a gitea
+The runner directory contains the docker compose setup for a gitea
 runner. I do run that on a few nodes, but not on the node that runs gitea
 itself. If the runner nodes need to update via watchtower, make sure they
 are running in your tailnet. Before you start, run the register.sh script
