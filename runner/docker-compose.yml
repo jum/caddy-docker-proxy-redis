@@ -1,10 +1,10 @@
-name: act_runner
+name: runner
 services:
-  act_runner:
-    container_name: act_runner
+  runner:
+    container_name: runner
     restart: always
     network_mode: host
-    image: gitea/act_runner:nightly
+    image: gitea/runner:latest
     volumes:
       - ./data:/data
       - /var/run/docker.sock:/var/run/docker.sock
