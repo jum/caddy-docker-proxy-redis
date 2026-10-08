@@ -93,7 +93,7 @@ slightly different in the way they are using caddy:
 
 The caddy subdirectory showcases a typical caddy configuration. I do run caddy
 in its container with host networking instead of running it in the typical
-bridged network environment the other containser run. This is necessary so that
+bridged network environment the other containers run. This is necessary so that
 caddy can create the proper X-Forward-For headers and put correct client ip
 addresses in the log. Some services like nextcloud are also very picky and will
 not work properly if the trusted proxy configuration is not right. If you have a
