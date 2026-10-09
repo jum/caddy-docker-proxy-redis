@@ -93,7 +93,7 @@ slightly different in the way they are using caddy:
 
 The caddy subdirectory showcases a typical caddy configuration. I do run caddy
 in its container with host networking instead of running it in the typical
-bridged network environment the other containser run. This is necessary so that
+bridged network environment the other containers run. This is necessary so that
 caddy can create the proper X-Forward-For headers and put correct client ip
 addresses in the log. Some services like nextcloud are also very picky and will
 not work properly if the trusted proxy configuration is not right. If you have a
@@ -293,7 +293,7 @@ HTTP_PORT = 3000
 HTTP_ADDR = /run/containers/gitea.sock
 ```
 
-The act_runner directory contains the docker compose setup for a gitea
+The runner directory contains the docker compose setup for a gitea
 runner. I do run that on a few nodes, but not on the node that runs gitea
 itself. If the runner nodes need to update via watchtower, make sure they
 are running in your tailnet. Before you start, run the register.sh script
@@ -372,28 +372,32 @@ export RESTIC_PASSWORD_FILE=$HOME/.restic-backup-hostXXX
 docker compose ls --format json|jq -r '.[]|.ConfigFiles' | while read yaml
 do
 	dir=`dirname "$yaml"`
+  user=`stat --format '%U' $dir`
 	if test -x "$dir/dumpdb.sh"
 	then
-		sudo -u adminuser sh -c "cd $dir; ./dumpdb.sh"
+		sudo -u $user sh -c "cd $dir; ./dumpdb.sh"
 	fi
   if test -x "$dir/dumpdbout.sh"
   then
     restic $VERBOSE backup \
+      --tag db-backup \
       --stdin-filename $dir/dumpdb.db \
       --stdin-from-command -- \
-      sudo -u adminuser sh -c "cd $dir; ./dumpdbout.sh"
+      sudo -u $user sh -c "cd $dir; ./dumpdbout.sh"
   fi
 done
 
 restic $VERBOSE backup --exclude-caches=true \
-	/etc/docker /var/lib/docker \
+  --tag dir-backup \
+  /etc/docker /var/lib/docker \
 	/usr/local \
 	/home/adminuser /root
 restic $VERBOSE forget \
 	--keep-daily 7 --keep-weekly 5 --keep-monthly 12 \
 	--keep-yearly 100 --prune
 
-chown -R adminuser:adminuser /home/adminuser/.cache/restic
+ownergroup=`stat --format %U:%G $HOME`
+chown -R $ownergroup $HOME/.cache/restic
 ```
 
 This scripts assumes that the subdirectories for the docker containers
