@@ -40,11 +40,7 @@ jobs:
           #cache-to: type=gha,mode=max
       - name: Send Webhook Notification
         if: always()
-        env:
-          JOB_STATUS: ${{ job.status }}
-          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
-          HOOK_OS_NAME: ${{ runner.os }}
-          WORKFLOW_NAME: ${{ github.workflow }}
-        run: |
-          git clone https://github.com/jum/github-actions-discord-webhook.git webhook
-          bash webhook/send.sh $JOB_STATUS $WEBHOOK_URL
+        uses: jum/github-actions-discord-webhook@v1
+        with:
+          status: ${{ job.status }}
+          webhook_url: ${{ secrets.WEBHOOK_URL }}
