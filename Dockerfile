@@ -1,5 +1,5 @@
 # Dockerfile for building the project with static assets
-FROM --platform=$BUILDPLATFORM golang:1.26-bookworm AS build
+FROM --platform=$BUILDPLATFORM golang:1.27-bookworm AS build
 
 WORKDIR /goapp
 ARG TARGETOS TARGETARCH
