@@ -1,0 +1,43 @@
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-collector
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    restart: unless-stopped
+    user: "0:0"
+    group_add:
+      - "your_docker_group_id"
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+    ports:
+      - "127.0.0.1:4317:4317"
+      - "127.0.0.1:4318:4318"
+      - "100.X.X:X:13133:13133"
+   extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /:/hostfs:ro
+      - /var/log/caddy:/var/log/caddy:ro
+    environment:
+      - GRAFANA_OTLP_URL=https://otlp-gateway-prod-us-east-2.grafana.net/otlp
+      - GRAFANA_AUTH_HEADER=Basic grafana_auth_token
+      - HOST_ID=your_hostname
+      - PROVIDER_NAMESPACE=hosteurope
+      - HOST_ZONE=your-real-zone
+      - REAL_ZONE=your-real-zone
+      - HOST_PROC=/host/proc
+      - HOST_SYS=/host/sys
+      - HOST_ROOT=/hostfs
+    labels:
+      caddy: http://172.17.0.1:2019
+      caddy.metrics:
+networks:
+  default:
+    name: caddy
+    external: true
