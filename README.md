@@ -20,7 +20,7 @@ following setup:
   Logging or Grafana Cloud for easy log file monitoring. This is may
   not be relevant for most people, but for me it makes perusing logs
   much easier. As this description is a bit longer and entirely optional,
-  it is moved to [LOGGING.md](LOGGING.md).
+  it is moved to [Logging and Tracing](LOGGING.md).
 - All docker containers are started via a docker-compose.yml file. Each
   of those gets their own subdirectory with the docker-compose.yml
   file alongside any additional configuration and data volumes needed.

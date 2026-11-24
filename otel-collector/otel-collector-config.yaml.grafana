@@ -1,0 +1,97 @@
+receivers:
+  # 1. OpenTelemetry Receiver (For App Traces & Metrics)
+  otlp:
+    protocols:
+      grpc:
+        endpoint: "0.0.0.0:4317"
+      http:
+        endpoint: "0.0.0.0:4318"
+
+  # 2. Host Metrics (CPU, Memory, Disk, etc.)
+  host_metrics:
+    collection_interval: 30s
+    root_path: /hostfs
+    scrapers:
+      cpu:
+        metrics:
+          system.cpu.utilization:
+            enabled: true
+      memory:
+      disk:
+      filesystem:
+      load:
+      network:
+      paging:
+
+  # 3. Docker Container Stats
+  docker_stats:
+    endpoint: "unix:///var/run/docker.sock"
+    collection_interval: 30s
+
+  # 4. Caddy Metrics (Prometheus Scraper)
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'caddy'
+          scrape_interval: 10s
+          static_configs:
+            # Reaches Native Caddy on Host IP
+            - targets: ['host.docker.internal:2019']
+
+processors:
+  batch:
+    timeout: 1s
+
+  # Detects Hostname, OS, and Docker metadata automatically
+  resource_detection:
+    detectors: [system, env, docker]
+    system:
+      hostname_sources: ["os"]
+
+  # Standardizes Metadata for Grafana
+  resource:
+    attributes:
+      # Critical for Grafana Service Map
+      - key: service.name
+        value: "caddy-ingress"
+        action: upsert
+
+      # Custom Metadata (Indexed by Grafana)
+      - key: service.namespace
+        value: "${env:PROVIDER_NAMESPACE}"
+        action: upsert
+      - key: host.id
+        value: "${env:HOST_ID}"
+        action: upsert
+      - key: cloud.availability_zone
+        value: "${env:REAL_ZONE}"
+        action: upsert
+
+exporters:
+  # HTTP Exporter for Grafana Cloud (Metrics, Logs, Traces)
+  otlp_http:
+    endpoint: "${env:GRAFANA_OTLP_URL}"
+    headers:
+      Authorization: "${env:GRAFANA_AUTH_HEADER}"
+
+service:
+  telemetry:
+    logs:
+      level: info
+      encoding: json
+
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [resource_detection, resource, batch]
+      exporters: [otlp_http]
+
+    metrics:
+      receivers: [host_metrics, docker_stats, prometheus, otlp]
+      processors: [resource_detection, resource, batch]
+      exporters: [otlp_http]
+
+    logs:
+      receivers: [otlp]
+      processors: [resource_detection, resource, batch]
+      exporters: [otlp_http]

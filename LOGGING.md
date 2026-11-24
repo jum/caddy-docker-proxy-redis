@@ -1,4 +1,4 @@
-# Logging using log aggregation
+# Logging and tracing
 
 There are two ways that I am playing with to perform logging to an
 external logging service: Google Cloud stackdriver logging and Grafana
@@ -237,6 +237,17 @@ The neat effect of all this that I get a fully distributed tracing across
 multiple nodes without going through the hoops of setting up a full blown
 OTEL setup and a really nice log viewer in the Google Cloud Console.
 
+If you want a full blown OTEL setup instead, you can skip the simpletrace
+configuration and use the caddy tracing directive instead:
+
+```
+tracing {
+  span {http.request.host}
+}
+```
+
+Please see the section on setting up the otel-collector container below.
+
 ### Alert Notifications
 
 Google cloud logging does have some powerful alerting, for example based
@@ -414,3 +425,45 @@ this to /etc/containerd/config.toml fixes this:
   level = "info"
   format = "json"
 ```
+
+## configuring otel-collector for full OTEL tracing
+
+The otel-collector directory contains setup for running the otel-collector
+container and forwarding all locally collected information to the central
+aggregator. I have this running with Google cloud or Grafana, both work fine.
+But as Google cloud metrics for Prometheus is a rather expensive service, I
+have commented out the metrics section for me. You will either need the
+docker-compose.yml.gcp and otel-collector-confg.yaml.gcp files for the Google
+cloud version or docker-compose.yml.grafana and otel-collector-confg.yaml.grafana
+for the Grafana version. The weak permissions in the docker-compose.yml files
+is for being able to do docker based Promotheus scraping, if the is not needed
+most of the security related docker compose options like the userid of 0 and the
+security_opt section can be dropped.
+
+The respective docker-compose.yml.* files contain all the configuration for the
+log and trace ingestion services for Google cloud and Grafana repectively, and
+must be adapted.
+
+Please note that Google cloud has the unfortunate habit to enforce zone identifiers
+as they are defined in Google cloud itself. If you host your servers elsewhere
+but want to use the Google cloud logging and tracing, you must use a Google cloud
+zone, probably one that is nearby. I have defined a REAL_ZONE environment variable to carry
+a different real zone into the data.
+
+To activate OTEL collection for a container, you will need to set some env
+variables to enable the OTEL collection libraries, this may vary on the runtime
+libraries used. This for example is needed for caddy and works for other go
+based apps as well:
+
+```
+environment:
+  - OTEL_SERVICE_NAME=caddy-ingress
+  - OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+  - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+```
+
+This will forward the tracing information to the local otel-collector instance.
+
+Please note that the docker-compose.yml file specify a listening addresses that
+include the tailnet IP of the host and the otel-collector-config.yaml file enables
+the health_check extension, allowing to monitor the status of the OTEL collector via the tailnet.
