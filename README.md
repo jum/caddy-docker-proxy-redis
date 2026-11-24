@@ -47,12 +47,15 @@ IPv6 as well.
 
 My docker services need the tailscale network to be up and running, it is
 thus necessary to wait for tailscale up and running before any docker
-containers are being run, even on reboot. To make this happen I create a symlink from the tailscale-online.target to make
-docker.service "want" this service:
+containers are being run, even on reboot. To make this happen I add this:
 
 ```
-sudo mkdir /etc/systemd/system/docker.service.wants
-sudo ln -s /usr/lib/systemd/system/tailscale-online.target /etc/systemd/system/docker.service.wants/tailscale-online.target
+sudo mkdir -p /etc/systemd/system/docker.service.d
+sudo tee /etc/systemd/system/docker.service.d/override.conf <<EOF
+[Unit]
+Wants=tailscale-online.target
+After=tailscale-online.target
+EOF
 ```
 
 This is necessary to achieve name resolution via the
@@ -73,6 +76,13 @@ resolv.conf should match the hosts /etc/resolv.conf exactly.
 From my experience the use of NetworkManager together with cloud-init is
 prone to produce these situation. The above tailscale-online requirement
 should delay the docker daemon start enough to avoid this problem.
+
+Some programs explicitely check for such consistency issues, postfix is
+a notable example. It is started before tailscale is fully up and may
+mention on startup that the version of resolve.conf in the chroot jail
+of postfix does not agree with the one in /etc. This is harmless unless
+you really want to use postfix to send email via the tailname, in which case the
+above override would need to be added to postfix as well.
 
 ## Caddy
 
